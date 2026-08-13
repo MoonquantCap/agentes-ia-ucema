@@ -200,7 +200,7 @@ const SCENES = [
     A("herramientas disponibles: <span style='color:var(--ink2)'>zoom · moodle · github · demos_en_vivo</span>"),
     A("objetivo de hoy: <span style='color:var(--ink2)'>que nadie salga de esta clase sin entender qué es un agente</span>"),
     H1("Creación de Agentes de IA"),
-    T("Clase 1 · Introducción a la IA generativa y al trabajo con agentes<br><span style='color:var(--ink3)'>Alfredo B. Roisenzvit · 13 de agosto de 2026</span>"),
+    T("Clase 1 · Introducción a los agentes de IA · primeros pasos con GitHub<br><span style='color:var(--ink3)'>Alfredo B. Roisenzvit · 13 de agosto de 2026</span>"),
   ]},
 
 { id:"meta", rail:"Qué es esto", notes:"",
@@ -398,20 +398,6 @@ const SCENES = [
     </div>`),
   ]},
 
-{ id:"ejercicio", rail:"Ejercicio · Entrega 1", notes:"",
-  steps:[
-    P("Manos a la obra"),
-    H2("Ejercicio: descomponé un proceso tuyo"),
-    T("Elegí <strong>un proceso real de tu trabajo</strong> (armar el reporte mensual, responder consultas de clientes, preparar un comité…) y partilo en tareas. Para cada una:"),
-    RAW(`<div class="card step" style="max-width:640px">
-      <ul style="font-size:17px; line-height:1.7">
-        <li>¿Es <strong>delegable a un agente</strong>, hoy? ¿Con qué herramientas?</li>
-        <li>¿Qué nivel de delegación tolera (L0–L4)? ¿Por qué?</li>
-        <li>¿Dónde tiene que quedar <strong>un humano firmando</strong>?</li>
-      </ul></div>`),
-    A("creando tarea en moodle… <span style='color:var(--ink2)'>Entrega 1 · vence jueves 20/8 19:00</span> ✓"),
-  ]},
-
 { id:"setup", rail:"Su entorno de trabajo", notes:"",
   steps:[
     P("Última misión de hoy: que todos salgan con un entorno funcionando"),
@@ -423,7 +409,7 @@ const SCENES = [
       <tr><td>Replit (navegador)</td><td>Máquinas viejas o bloqueadas — cero instalación</td><td>Gratis para empezar</td></tr>
       <tr><td>VS Code + extensión IA</td><td>Perfil más técnico, o con API económica</td><td>Variable</td></tr>
     </table>`),
-    T("Como dijimos al principio: <strong>la instalación la averigua cada uno</strong>, con la IA al lado. Yo circulo por los breakouts y destrabo lo que no sale. En Moodle tienen el <strong>📖 diccionario vivo</strong> con los términos de hoy y una guía de referencia por opción; si igual se traban, al <strong>Foro de consultas</strong> — nadie se queda trabado solo."),
+    T("Como dijimos al principio: <strong>la instalación la averigua cada uno</strong>, con la IA al lado. El que se traba <strong>comparte pantalla acá en Zoom</strong> y lo destrabamos en vivo — del destrabe aprende toda la sala. En Moodle tienen el <strong>📖 diccionario vivo</strong> y los <strong>🚀 prompts de arranque</strong>; si igual se traban después de hora, al <strong>Foro de consultas</strong> — nadie se queda trabado solo."),
     RAW(`<div class="viz mono step" style="font-size:14.5px; color:var(--ink2); line-height:1.7">
       <div class="vtitle">prompt de arranque — copiar y adaptar</div>
       Soy principiante total. Tengo <span style="color:var(--mono)">[Windows 11 / macOS]</span> y quiero instalar<br>
@@ -432,13 +418,46 @@ const SCENES = [
       antes de seguir. Si algo falla te pego el error textual.</div>`),
   ]},
 
+{ id:"github", rail:"Primeros pasos con GitHub", notes:"",
+  steps:[
+    P("Segunda misión: tu primer repositorio"),
+    H2("GitHub: donde vive lo que construís"),
+    T("Un <strong>repositorio</strong> es la carpeta de tu proyecto con toda su historia de cambios. En esta materia, <strong>cada entrega vive en un repo público tuyo</strong> — así se documenta el trabajo real, y así lo puede leer el agente que corrige."),
+    RAW(`<div class="card step" style="max-width:640px">
+      <ul style="font-size:17px; line-height:1.8">
+        <li><strong>1.</strong> Cuenta gratis en <span class="mono">github.com</span></li>
+        <li><strong>2.</strong> Un repositorio nuevo, <strong>público</strong>, con el nombre de tu proyecto</li>
+        <li><strong>3.</strong> Subile un archivo <span class="mono">README.md</span> — el formato estándar está en Moodle</li>
+        <li><strong>4.</strong> Compartí el link. Eso es entregar.</li>
+      </ul></div>`),
+    T("¿Cómo se hace cada paso? <strong>Ya saben la respuesta:</strong> pídanselo a su tutor IA. El prompt exacto está en la página «Formato de entrega» de Moodle. Todo desde el navegador, sin terminal."),
+    A("verificando… <span style='color:var(--ink2)'>cuenta ✓ · repo público ✓ · README ✓ · link compartido ✓</span>"),
+  ]},
+
+{ id:"ejercicio", rail:"Entrega 1", notes:"",
+  steps:[
+    P("La tarea de esta semana"),
+    H2("Entrega 1: construí algo chico"),
+    T("Con un agente de IA, construí <strong>algo pequeño que funcione — o que casi funcione</strong>. Vale partir de los ejemplos de hoy: el juego para estudiar, el informe sobre una carpeta, una automatización de tu trabajo. Escala correcta: <strong>una tarde</strong>. ¿No se te ocurre qué? Usá el prompt de pedirle ideas al agente."),
+    T("La regla de trabajo: <strong>no escribas código</strong>. Describí lo que querés, iterá, y documentá el proceso mientras pasa."),
+    RAW(`<table class="simple step">
+      <tr><th>Qué se evalúa (corrige un agente)</th><th>Peso</th></tr>
+      <tr><td>Proceso documentado — cómo se lo pediste, cómo iteraste</td><td>40</td></tr>
+      <tr><td>Comprensión de la lógica agéntica</td><td>30</td></tr>
+      <tr><td>Resultado funcionando</td><td>20</td></tr>
+      <tr><td>Reflexión: qué falta y qué aprendiste</td><td>10</td></tr>
+    </table>`),
+    T("Leé los pesos: <strong>que no funcione no es un aplazo.</strong> Un proyecto roto bien contado vale más que uno prolijo que no entendiste. Se entrega el link a tu repo (o un .zip si GitHub te ganó esta semana) con el README estándar."),
+    A("abriendo entrega en moodle… <span style='color:var(--ink2)'>Entrega 1 · abre hoy 22:00 · vence jueves 20/8 18:59</span> ✓"),
+  ]},
+
 { id:"cierre", rail:"Cierre", notes:"",
   steps:[
     P("Cerrando la sesión de hoy"),
     H2("Para el jueves que viene"),
     RAW(`<div class="card step" style="max-width:640px"><ul style="font-size:17px; line-height:1.8">
       <li><strong>Leer:</strong> paper GPT (WP 853) + «Building effective agents» (Anthropic) — en Bibliografía Clase 1</li>
-      <li><strong>Entregar:</strong> Entrega 1 — descomposición de un proceso (Moodle)</li>
+      <li><strong>Entregar:</strong> Entrega 1 — construí algo chico · el link a tu repo, en Moodle</li>
       <li><strong>Traer:</strong> tu entorno funcionando (o tus preguntas al foro antes)</li>
     </ul></div>`),
     T("Clase 2: <strong>prompting como diseño de instrucciones</strong> — y cuánto cuesta, en tokens y en plata, cada decisión de diseño."),
