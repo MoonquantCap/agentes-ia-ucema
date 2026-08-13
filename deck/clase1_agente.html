@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 — Creación de Agentes de IA · UCEMA MADE</title>
+<style>
+  :root{
+    --bg:#101014; --panel:#1a1a19; --panel2:#212127;
+    --ink:#ffffff; --ink2:#c3c2b7; --ink3:#8b8a80;
+    --accent:#9d2235; --accent2:#c94b5e;
+    --mono:#7ee2a8;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+  /* ---------- chrome ---------- */
+  #topbar{position:fixed; top:0; left:0; right:0; height:44px; display:flex;
+    align-items:center; gap:14px; padding:0 18px; z-index:50;
+    background:linear-gradient(180deg,rgba(16,16,20,.96),rgba(16,16,20,.7));
+    font-size:13px; color:var(--ink3)}
+  #topbar .dot{width:9px;height:9px;border-radius:50%;background:var(--mono);
+    box-shadow:0 0 8px var(--mono); animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  #topbar .sep{opacity:.35}
+  #topbar .brand{color:var(--accent2); font-weight:600; letter-spacing:.4px}
+  #counter{margin-left:auto}
+
+  #rail{position:fixed; right:0; top:44px; bottom:40px; width:230px; z-index:40;
+    padding:16px 14px; overflow-y:auto; font-size:12px; color:var(--ink3);
+    border-left:1px solid #26262c; background:rgba(16,16,20,.55);
+    transition:transform .3s}
+  #rail.hidden{transform:translateX(240px)}
+  #rail h4{font-size:11px; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--ink3); margin-bottom:10px}
+  #rail .item{display:flex; gap:8px; padding:5px 4px; border-radius:6px;
+    align-items:baseline; cursor:pointer; line-height:1.25}
+  #rail .item:hover{background:#212127}
+  #rail .item .mark{width:14px; flex:none; color:var(--ink3)}
+  #rail .item.done .mark{color:var(--s3)}
+  #rail .item.now{color:var(--ink)}
+  #rail .item.now .mark{color:var(--mono)}
+
+  #stage{position:absolute; inset:44px 230px 40px 0; display:flex;
+    align-items:center; justify-content:center; padding:28px 40px;
+    transition:inset .3s}
+  #stage.wide{inset:44px 0 40px 0}
+  #scene{width:min(1060px,100%); max-height:100%; overflow-y:auto;
+    scrollbar-width:none}
+  #scene::-webkit-scrollbar{display:none}
+
+  #hints{position:fixed; bottom:0; left:0; right:0; height:40px; display:flex;
+    align-items:center; gap:18px; padding:0 18px; font-size:12px;
+    color:var(--ink3); z-index:50}
+  #hints kbd{background:#26262c; border-radius:4px; padding:1px 7px;
+    font-family:inherit; font-size:11px; color:var(--ink2)}
+  #progress{position:fixed; bottom:40px; left:0; height:2px;
+    background:var(--accent2); width:0%; z-index:60; transition:width .35s}
+
+  /* ---------- agent conversation elements ---------- */
+  .step{opacity:0; transform:translateY(10px);
+    transition:opacity .45s,transform .45s}
+  .step.on{opacity:1; transform:none}
+  .prompt{display:inline-flex; align-items:center; gap:10px; margin-bottom:22px;
+    background:var(--panel2); border:1px solid #33333b; border-radius:999px;
+    padding:8px 18px; font-size:15px; color:var(--ink2)}
+  .prompt::before{content:"▸"; color:var(--accent2); font-weight:700}
+  .agentline{display:flex; gap:10px; font-size:13px; color:var(--ink3);
+    margin:4px 0}
+  .agentline .who{color:var(--mono)}
+  h1.big{font-size:56px; line-height:1.08; letter-spacing:-1px; margin:10px 0 14px}
+  h2.sc{font-size:38px; line-height:1.12; letter-spacing:-.5px; margin:4px 0 18px}
+  .sub{font-size:20px; color:var(--ink2); line-height:1.45}
+  .body-txt{font-size:21px; color:var(--ink2); line-height:1.55; margin:10px 0;
+    max-width:56ch}
+  .body-txt strong{color:var(--ink)}
+  .cursor{display:inline-block; width:.55em; height:1.05em; background:var(--mono);
+    vertical-align:text-bottom; animation:pulse 1s infinite; margin-left:2px}
+
+  .tool{display:flex; align-items:center; gap:12px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:10px; padding:10px 16px;
+    margin:10px 0; font-size:15px; width:fit-content; max-width:100%}
+  .tool .tname{color:var(--mono)}
+  .tool .spin{width:14px; height:14px; border:2px solid #3a3a42;
+    border-top-color:var(--mono); border-radius:50%;
+    animation:rot .8s linear infinite; flex:none}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .tool.ok .spin{border:none; animation:none; width:auto; height:auto}
+  .tool.ok .spin::before{content:"✓"; color:var(--s3); font-weight:700}
+  .tool .res{color:var(--ink3)}
+
+  .cardrow{display:flex; gap:18px; margin:18px 0; flex-wrap:wrap}
+  .card{flex:1; min-width:240px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:var(--radius); padding:22px}
+  .card h3{font-size:17px; margin-bottom:10px; color:var(--ink)}
+  .card p,.card li{font-size:15.5px; color:var(--ink2); line-height:1.5}
+  .card ul{padding-left:18px; margin-top:6px}
+  .card.hl{border-color:var(--accent); box-shadow:0 0 24px rgba(157,34,53,.25)}
+  .tag{display:inline-block; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; padding:3px 10px; border-radius:999px;
+    background:#26262c; color:var(--ink3); margin-bottom:10px}
+
+  .bigquote{font-size:30px; line-height:1.4; max-width:34ch; color:var(--ink);
+    border-left:4px solid var(--accent); padding-left:26px; margin:22px 0}
+  .bigquote .by{display:block; font-size:16px; color:var(--ink3); margin-top:14px}
+
+  .handoff{display:flex; flex-direction:column; align-items:center; gap:18px;
+    text-align:center; padding:40px 0}
+  .handoff .live{font-size:13px; letter-spacing:3px; color:#fff;
+    background:var(--accent); border-radius:999px; padding:7px 20px;
+    animation:pulse 1.6s infinite}
+  .handoff h2{font-size:52px; letter-spacing:-1px}
+
+  table.simple{border-collapse:collapse; margin:14px 0; width:100%}
+  table.simple th{font-size:13px; text-transform:uppercase; letter-spacing:.8px;
+    color:var(--ink3); text-align:left; padding:8px 14px 8px 0;
+    border-bottom:1px solid #2c2c33}
+  table.simple td{font-size:16px; color:var(--ink2); padding:9px 14px 9px 0;
+    border-bottom:1px solid #222228; line-height:1.4}
+  table.simple td:first-child{color:var(--ink); white-space:nowrap}
+
+  /* viz panels (dataviz tokens) */
+  .viz{background:var(--panel); border:1px solid #2c2c33;
+    border-radius:var(--radius); padding:20px 22px; margin:16px 0}
+  .viz .vtitle{font-size:14px; color:var(--ink2); margin-bottom:12px}
+  .tokbar{display:flex; align-items:center; gap:12px; margin:7px 0}
+  .tokbar .tk{width:120px; font-size:16px; text-align:right; color:var(--ink)}
+  .tokbar .bar{height:22px; border-radius:0 4px 4px 0; background:var(--s1);
+    width:0; transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .tokbar .pct{font-size:13px; color:var(--ink3)}
+
+  #notes{position:fixed; inset:auto 0 0 0; background:rgba(12,12,15,.97);
+    border-top:2px solid var(--accent); padding:18px 26px 46px; z-index:80;
+    font-size:16px; line-height:1.5; color:var(--ink2); display:none;
+    max-height:45%; overflow-y:auto}
+  #notes.show{display:block}
+  #notes .nt{font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--accent2); margin-bottom:8px}
+
+  .levels{display:flex; gap:10px; margin:20px 0; flex-wrap:wrap}
+  .lv{flex:1; min-width:150px; background:var(--panel); border:1px solid #2c2c33;
+    border-radius:10px; padding:14px}
+  .lv .l{font-size:12px; color:var(--mono); margin-bottom:6px}
+  .lv b{display:block; font-size:15px; margin-bottom:6px; color:var(--ink)}
+  .lv p{font-size:13px; color:var(--ink3); line-height:1.4}
+  .lv.hl{border-color:var(--accent)}
+</style>
+</head>
+<body>
+  <div id="topbar" class="mono">
+    <span class="dot"></span>
+    <span>agente-docente</span><span class="sep">·</span>
+    <span class="brand">Creación de Agentes de IA</span><span class="sep">·</span>
+    <span>MADE · UCEMA · clase 1/6</span>
+    <span id="counter"></span>
+  </div>
+  <div id="rail"><h4>Plan de la clase</h4><div id="railitems"></div></div>
+  <div id="stage"><div id="scene"></div></div>
+  <div id="progress"></div>
+  <div id="hints">
+    <span><kbd>espacio</kbd>/<kbd>→</kbd> avanzar</span>
+    <span><kbd>←</kbd> volver</span>
+    <span></span>
+    <span><kbd>R</kbd> panel</span>
+    <span><kbd>F</kbd> pantalla completa</span>
+  </div>
+  <div id="notes"><div class="nt">Notas del presentador</div><div id="notesbody"></div></div>
+
+<script>
+/* =========================================================
+   AgentDeck — presentación agéntica · Clase 1
+   Escenas declarativas; cada escena = pasos que se revelan.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+
+function el(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+
+/* ---- step builders ---------------------------------------------------- */
+const P  = html => ({kind:"fade", html:`<div class="step prompt">${html}</div>`});
+const A  = html => ({kind:"fade", html:`<div class="step agentline mono"><span class="who">agente ▸</span><span>${html}</span></div>`});
+const H1 = html => ({kind:"type", tagHtml:`<h1 class="big step"></h1>`, text:html});
+const H2 = html => ({kind:"type", tagHtml:`<h2 class="sc step"></h2>`, text:html});
+const T  = html => ({kind:"fade", html:`<p class="body-txt step">${html}</p>`});
+const RAW= html => ({kind:"fade", html:`<div class="step">${html}</div>`});
+const TOOL = (name,args,res,ms=1100) => ({kind:"tool", name, args, res, ms});
+
+/* ---- scenes ----------------------------------------------------------- */
+const SCENES = [
+
+{ id:"boot", rail:"Inicio", notes:"",
+  steps:[
+    A("iniciando sesión…"),
+    A("cargando contexto: <span style='color:var(--ink2)'>MADE · UCEMA · 2026 2T · jueves 19:00–22:00</span>"),
+    A("herramientas disponibles: <span style='color:var(--ink2)'>zoom · moodle · github · demos_en_vivo</span>"),
+    A("objetivo de hoy: <span style='color:var(--ink2)'>que nadie salga de esta clase sin entender qué es un agente</span>"),
+    H1("Creación de Agentes de IA"),
+    T("Clase 1 · Introducción a la IA generativa y al trabajo con agentes<br><span style='color:var(--ink3)'>Alfredo B. Roisenzvit · 13 de agosto de 2026</span>"),
+  ]},
+
+{ id:"meta", rail:"Qué es esto", notes:"",
+  steps:[
+    P("¿Y esto? ¿No era una clase con PowerPoint?"),
+    H2("Esto que están viendo es un agente"),
+    T("No hay diapositivas. Hay un <strong>system prompt</strong>, contenido, y un motor que lo ejecuta paso a paso — igual que los agentes que van a construir en esta materia."),
+    RAW(`<div class="viz mono" style="font-size:14.5px; color:var(--ink2); line-height:1.6">
+      <div class="vtitle">system_prompt.md</div>
+      Sos el <span style="color:var(--mono)">agente docente</span> de la Clase 1.<br>
+      Tu tarea: guiar a 50+ estudiantes de MBA desde "uso ChatGPT"<br>
+      hasta "entiendo qué es un agente y tengo mi entorno funcionando".<br>
+      Restricciones: español rioplatense · cero jerga innecesaria ·<br>
+      cada concepto con ejemplo · frenar cuando el humano lo pida.</div>`),
+    T("Al final de la cursada, el que corrija sus entregas también va a ser un agente — que vamos a diseñar entre todos."),
+  ]},
+
+/* ---------------------------------------------------------------------
+   ESCENA EDITABLE: el caso personal (tarea de los chicos gamificada).
+   Ajustar los detalles del relato en el bloque `.viz` de abajo — materia,
+   edades, nombre del juego, reacción — para contarlo tal como pasó.
+   --------------------------------------------------------------------- */
+{ id:"paradigma", rail:"Un estado mental", notes:"",
+  steps:[
+    P("Antes de la teoría: ¿qué hace falta para programar con IA?"),
+    H2("No es una herramienta. Es un estado mental."),
+    T("Programar con IA no es aprender un lenguaje nuevo: es <strong>cambiar la pregunta que uno se hace</strong>. El límite dejó de ser lo que sabés escribir y pasó a ser lo que se te ocurre pedir."),
+    RAW(`<table class="simple step">
+      <tr><th></th><th>El paradigma viejo</th><th>El paradigma nuevo</th></tr>
+      <tr><td>La pregunta</td><td>¿Sé programar esto?</td><td>¿Qué quiero que exista?</td></tr>
+      <tr><td>El cuello de botella</td><td>La sintaxis y el tiempo</td><td>La imaginación y el criterio</td></tr>
+      <tr><td>Quién ejecuta</td><td>Uno, línea por línea</td><td>Un agente, bajo tus instrucciones</td></tr>
+      <tr><td>Probar una idea cuesta</td><td>Semanas y un equipo</td><td>Una tarde y una conversación</td></tr>
+    </table>`),
+    A("recuperando caso propio ▸ <span style='color:var(--ink2)'>archivo: casa, un martes cualquiera</span>"),
+    RAW(`<div class="viz step" style="line-height:1.65">
+      <div class="vtitle mono">caso · la tarea de mis hijos</div>
+      <p class="body-txt" style="margin:0 0 10px">Mis hijos tenían que estudiar para una prueba. La escena de siempre: resistencia, aburrimiento, negociación.</p>
+      <p class="body-txt" style="margin:0 0 10px">No soy desarrollador de videojuegos ni tengo un equipo. Pero me hice otra pregunta: <strong>¿y si en vez de estudiar la lista de temas, jugaran a algo que los obligue a saberla?</strong></p>
+      <p class="body-txt" style="margin:0">Esa misma tarde existía el juego: con sus nombres, sus temas, puntaje y niveles. <span style="color:var(--ink3)">No escribí el código: describí el juego.</span></p>
+    </div>`),
+    T("Lo escaso ahí no fue la técnica. Fue <strong>haberme hecho esa pregunta</strong> — y haberla probado el mismo día que se me ocurrió."),
+    P("¿Y si a mí no se me ocurre nada?"),
+    T("Pedíselas. <strong>Generar ideas es de las cosas que mejor hace</strong>: bien contextualizada, una IA te devuelve diez caminos que no habías visto, y varios mejores que el tuyo. La materia prima que le das vos es tu mundo — tu trabajo, tus hijos, el problema que te comió el martes pasado."),
+    RAW(`<div class="viz mono step" style="font-size:14.5px; color:var(--ink2); line-height:1.7">
+      <div class="vtitle">prompt · pedirle ideas al agente</div>
+      Te cuento mi contexto: <span style="color:var(--mono)">[a qué me dedico · qué me consume tiempo ·<br>
+      qué me gustaría que existiera]</span>.<br>
+      Dame 10 ideas de cosas que podría construir con IA para eso,<br>
+      de la más obvia a la más rara. Para cada una: qué haría falta,<br>
+      qué me ahorraría, y por dónde empezaría hoy.</div>`),
+    RAW(`<div class="bigquote step">La IA puede darte la idea — y si se la pedís bien, te da cien.<br>Lo que aportás vos es el mundo del que salen, y la decisión de cuál vale la pena.
+      <span class="by">— el resto de esta materia es sobre cómo convertir eso en algo que funcione</span></div>`),
+    T("Durante estas seis clases la pregunta que quiero que se hagan no es «¿esto se puede hacer?» — casi siempre se puede — sino <strong>«¿para qué lo usaría yo?»</strong>"),
+  ]},
+
+{ id:"autodidacta", rail:"Cómo se aprende esto", notes:"",
+  steps:[
+    P("Segunda parte de lo mismo: ¿y cómo aprendo a usar las herramientas?"),
+    H2("No les voy a enseñar a instalar. Les voy a enseñar a averiguarlo."),
+    T("Este campo se mueve todas las semanas. Cualquier instructivo de instalación que yo dicte hoy <strong>vence antes de que termine la cursada</strong> — el menú cambia de lugar, la app cambia de nombre, aparece una mejor. Memorizar el paso a paso no es aprender."),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>Lo que enseño yo</h3><p>Qué es un agente y cómo se diseña · qué herramienta sirve para qué · el criterio para elegir, supervisar y evaluar · dónde están los riesgos.</p></div>
+      <div class="card"><h3>Lo que investigan ustedes</h3><p>Cómo se instala <em>su</em> herramienta en <em>su</em> máquina · qué significa ese error · cómo se llama hoy esa opción del menú · qué salió la semana pasada.</p></div>
+    </div>`),
+    T("Y no lo hacen solos: lo hacen <strong>con la IA como tutor</strong>. La misma herramienta que van a aprender a usar es la que les explica cómo usarla — pegarle el error textual y pedirle el paso siguiente es, literalmente, la primera práctica de la materia."),
+    A("ejemplo ▸ un alumno trabado, 21:14 de un martes"),
+    TOOL("preguntar_a_la_IA", "«soy nuevo, Windows 11, instalé X y me tira este error: …»", "3 causas probables + comando a probar", 1300),
+    TOOL("probar_y_reportar", "«probé la 2 y ahora dice otra cosa: …»", "resuelto ✓ + qué había pasado", 1200),
+    T("Eso que acaba de pasar no es «pedir ayuda». Es <strong>la competencia central del curso</strong>: iterar con un sistema que sabe más que vos de la parte técnica, mientras vos ponés el objetivo y el criterio."),
+    RAW(`<div class="bigquote step">La primera prueba de que entendieron la materia<br>es que puedan instalarla sin mí.
+      <span class="by">— y si se traban: Foro de consultas, diccionario vivo, el compañero de al lado. Nadie se queda trabado solo.</span></div>`),
+  ]},
+
+{ id:"llm", rail:"¿Qué es un LLM?", notes:"",
+  steps:[
+    P("Empecemos por el motor: ¿qué es un LLM?"),
+    H2("Un LLM predice el próximo token"),
+    T("Un modelo de lenguaje no 'busca' respuestas: <strong>genera texto prediciendo la próxima palabra</strong>, una y otra vez, a partir de patrones aprendidos de cantidades enormes de texto."),
+    RAW(`<div class="viz">
+      <div class="vtitle mono">"La inteligencia artificial va a transformar el ___"</div>
+      <div class="tokbar"><span class="tk">trabajo</span><div class="bar" data-w="62%"></div><span class="pct">62%</span></div>
+      <div class="tokbar"><span class="tk">mundo</span><div class="bar" data-w="21%" style="opacity:.75"></div><span class="pct">21%</span></div>
+      <div class="tokbar"><span class="tk">mercado</span><div class="bar" data-w="9%" style="opacity:.55"></div><span class="pct">9%</span></div>
+      <div class="tokbar"><span class="tk">aula</span><div class="bar" data-w="4%" style="opacity:.4"></div><span class="pct">4%</span></div>
+    </div>`),
+    T("¿Cómo decide? Geometría: las palabras viven en un espacio de miles de dimensiones donde <strong>la distancia es significado</strong> — es el tema del paper que tienen en la bibliografía de hoy <span style='color:var(--ink3)'>(Roisenzvit, UCEMA WP 853)</span>."),
+  ]},
+
+{ id:"chatvsagent", rail:"Chatbot vs. agente", notes:"",
+  steps:[
+    P("Ok, eso es el motor. ¿Y un agente?"),
+    H2("Un chatbot responde. Un agente ejecuta."),
+    RAW(`<div class="cardrow">
+      <div class="card"><span class="tag">chatbot</span>
+        <p>«¿Qué dice este contrato sobre rescisión?»</p>
+        <p style="margin-top:8px; color:var(--ink3)">→ te lo explica. Fin.</p></div>
+      <div class="card hl"><span class="tag" style="background:var(--accent); color:#fff">agente</span>
+        <p>«Revisá los 40 contratos de la carpeta y armame un informe de riesgos de rescisión»</p>
+        <p style="margin-top:8px; color:var(--ink3)">→ y entonces:</p></div>
+    </div>`),
+    TOOL("leer_carpeta", "contratos/", "40 archivos encontrados"),
+    TOOL("analizar", "cláusulas de rescisión × 40", "12 con riesgo alto"),
+    TOOL("escribir_informe", "informe_riesgos.docx", "entregado ✓", 1400),
+    T("<strong>Herramientas + iteración + entregable.</strong> Eso es un agente. La conversación es apenas la interfaz."),
+  ]},
+
+{ id:"loop", rail:"El loop agéntico", notes:"",
+  steps:[
+    P("¿Y cómo 'piensa' un agente por dentro?"),
+    H2("El loop: planear → actuar → observar → repetir"),
+    RAW(`<div class="viz" style="display:flex; justify-content:center">
+      <svg viewBox="0 0 760 210" style="max-width:740px; width:100%">
+        <defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#8b8a80"/></marker></defs>
+        <g font-family="-apple-system,Segoe UI,sans-serif" font-size="15" text-anchor="middle">
+          <rect x="10" y="80" width="130" height="52" rx="10" fill="#212127" stroke="#9d2235" stroke-width="1.5"/>
+          <text x="75" y="111" fill="#fff">Objetivo</text>
+          <rect x="200" y="80" width="120" height="52" rx="10" fill="#212127" stroke="#2c2c33"/>
+          <text x="260" y="111" fill="#fff">Plan</text>
+          <rect x="380" y="80" width="150" height="52" rx="10" fill="#212127" stroke="#2c2c33"/>
+          <text x="455" y="104" fill="#fff">Acción</text>
+          <text x="455" y="122" fill="#8b8a80" font-size="12">(herramienta)</text>
+          <rect x="590" y="80" width="150" height="52" rx="10" fill="#212127" stroke="#2c2c33"/>
+          <text x="665" y="104" fill="#fff">Observación</text>
+          <text x="665" y="122" fill="#8b8a80" font-size="12">¿funcionó?</text>
+          <line x1="140" y1="106" x2="196" y2="106" stroke="#8b8a80" stroke-width="1.6" marker-end="url(#arr)"/>
+          <line x1="320" y1="106" x2="376" y2="106" stroke="#8b8a80" stroke-width="1.6" marker-end="url(#arr)"/>
+          <line x1="530" y1="106" x2="586" y2="106" stroke="#8b8a80" stroke-width="1.6" marker-end="url(#arr)"/>
+          <path d="M 665 80 C 665 24, 260 24, 260 76" fill="none" stroke="#8b8a80" stroke-width="1.6" marker-end="url(#arr)" stroke-dasharray="5 4"/>
+          <text x="462" y="34" fill="#8b8a80" font-size="13">no está listo → replanificar</text>
+          <path d="M 665 132 L 665 172 L 720 172" fill="none" stroke="#199e70" stroke-width="1.6" marker-end="url(#arr)"/>
+          <text x="700" y="196" fill="#199e70" font-size="14">listo: entregar</text>
+        </g>
+      </svg></div>`),
+    T("El humano define el <strong>objetivo</strong>, decide qué herramientas le da, y elige <strong>dónde revisar</strong>. Ese diseño — no el código — es el trabajo de management."),
+  ]},
+
+{ id:"vibe", rail:"Vibecoding", notes:"",
+  steps:[
+    P("¿Y 'vibecoding'? Está en todos lados…"),
+    H2("Vibecoding: programar describiendo"),
+    RAW(`<div class="bigquote step">“There's a new kind of coding I call <em>vibe coding</em>, where you fully give in to the vibes… and forget that the code even exists.”
+      <span class="by">Andrej Karpathy — cofundador de OpenAI, ex director de IA de Tesla (2025)</span></div>`),
+    T("Describís lo que querés en lenguaje natural, la IA escribe el código, vos evaluás el <strong>resultado</strong> — no cada línea. Así vamos a construir en esta materia: ustedes ponen el criterio, el agente pone la sintaxis."),
+  ]},
+
+{ id:"matrix", rail:"Mapa de conceptos", notes:"",
+  steps:[
+    P("Ordenemos todo lo que vimos"),
+    H2("Tres cosas distintas que se confunden"),
+    RAW(`<table class="simple step">
+      <tr><th></th><th>Qué es</th><th>Ejemplo</th></tr>
+      <tr><td>LLM</td><td>El motor: predice texto</td><td>GPT-5.x · Claude Fable · Gemini 3.x</td></tr>
+      <tr><td>Vibecoding</td><td>Una forma de crear: describís, la IA programa</td><td>«Armame una app que…» → app funcionando</td></tr>
+      <tr><td>Agente</td><td>Un sistema que ejecuta tareas con herramientas e iteración</td><td>Corrige las 50 entregas del curso, solo, cada semana</td></tr>
+    </table>`),
+    T("La materia completa en una línea: <strong>usar el motor, crear vibecodeando, y diseñar los sistemas.</strong>"),
+  ]},
+
+{ id:"demo", rail:"⏸ DEMO EN VIVO", notes:"",
+  steps:[
+    RAW(`<div class="handoff step">
+      <span class="live mono">● EN VIVO</span>
+      <h2>Demo: lo que se puede construir hoy</h2>
+      <p class="sub">Salimos del deck — pantalla compartida, proyectos reales,<br>con sus prompts y sus errores incluidos.</p>
+    </div>`),
+    A("pausando presentación… cediendo el control al humano ▸ <span style='color:var(--ink2)'>[demo en vivo]</span>"),
+  ]},
+
+{ id:"autonomy", rail:"Autonomía y supervisión", notes:"",
+  steps:[
+    P("En la demo el agente hizo mucho solo. ¿Cuánto es demasiado?"),
+    H2("Niveles de delegación"),
+    RAW(`<div class="levels step">
+      <div class="lv"><span class="l mono">L0</span><b>Consultar</b><p>El humano pregunta, la IA responde. Nada se ejecuta.</p></div>
+      <div class="lv"><span class="l mono">L1</span><b>Proponer</b><p>La IA redacta o planifica; el humano aprueba cada paso.</p></div>
+      <div class="lv hl"><span class="l mono">L2</span><b>Ejecutar con revisión</b><p>El agente trabaja solo; el humano revisa hitos y el final. <span style="color:var(--accent2)">← esta materia</span></p></div>
+      <div class="lv"><span class="l mono">L3</span><b>Ejecutar y avisar</b><p>El agente entrega; el humano audita por muestreo.</p></div>
+      <div class="lv"><span class="l mono">L4</span><b>Autónomo</b><p>Sin humano en el loop. Se reserva para tareas donde el error es barato y reversible.</p></div>
+    </div>`),
+    T("La pregunta profesional no es «¿puede hacerlo solo?» sino <strong>«¿qué pasa si lo hace mal, y quién firma?»</strong> La responsabilidad no se delega."),
+  ]},
+
+{ id:"work", rail:"Agentes y management", notes:"",
+  steps:[
+    P("¿Y esto qué significa para los que dirigimos equipos?"),
+    H2("Agentes como nuevos trabajadores digitales"),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>Descomponer</h3><p>Los procesos se rediseñan como tareas delegables con criterios de aceptación explícitos.</p></div>
+      <div class="card"><h3>Especificar</h3><p>Escribir buenas instrucciones se vuelve una competencia gerencial central — es la Clase 2 completa.</p></div>
+    </div>
+    <div class="cardrow step">
+      <div class="card"><h3>Supervisar</h3><p>Definir dónde va el humano en el loop: qué se revisa, qué se audita, qué se firma.</p></div>
+      <div class="card"><h3>Gobernar</h3><p>Costos, riesgos, sesgos, trazabilidad: el capítulo final de la materia — y del trabajo real.</p></div>
+    </div>`),
+  ]},
+
+{ id:"ejercicio", rail:"Ejercicio · Entrega 1", notes:"",
+  steps:[
+    P("Manos a la obra"),
+    H2("Ejercicio: descomponé un proceso tuyo"),
+    T("Elegí <strong>un proceso real de tu trabajo</strong> (armar el reporte mensual, responder consultas de clientes, preparar un comité…) y partilo en tareas. Para cada una:"),
+    RAW(`<div class="card step" style="max-width:640px">
+      <ul style="font-size:17px; line-height:1.7">
+        <li>¿Es <strong>delegable a un agente</strong>, hoy? ¿Con qué herramientas?</li>
+        <li>¿Qué nivel de delegación tolera (L0–L4)? ¿Por qué?</li>
+        <li>¿Dónde tiene que quedar <strong>un humano firmando</strong>?</li>
+      </ul></div>`),
+    A("creando tarea en moodle… <span style='color:var(--ink2)'>Entrega 1 · vence jueves 20/8 19:00</span> ✓"),
+  ]},
+
+{ id:"setup", rail:"Su entorno de trabajo", notes:"",
+  steps:[
+    P("Última misión de hoy: que todos salgan con un entorno funcionando"),
+    H2("Elegí tu herramienta"),
+    RAW(`<table class="simple step">
+      <tr><th>Opción</th><th>Para quién</th><th>Costo</th></tr>
+      <tr><td>Google Antigravity</td><td>Baseline para todos — Windows/Mac, gráfico</td><td>Gratis</td></tr>
+      <tr><td>Codex app / Claude Desktop</td><td>Si ya pagan ChatGPT Plus o Claude Pro</td><td>~USD 20/mes</td></tr>
+      <tr><td>Replit (navegador)</td><td>Máquinas viejas o bloqueadas — cero instalación</td><td>Gratis para empezar</td></tr>
+      <tr><td>VS Code + extensión IA</td><td>Perfil más técnico, o con API económica</td><td>Variable</td></tr>
+    </table>`),
+    T("Como dijimos al principio: <strong>la instalación la averigua cada uno</strong>, con la IA al lado. Yo circulo por los breakouts y destrabo lo que no sale. En Moodle tienen el <strong>📖 diccionario vivo</strong> con los términos de hoy y una guía de referencia por opción; si igual se traban, al <strong>Foro de consultas</strong> — nadie se queda trabado solo."),
+    RAW(`<div class="viz mono step" style="font-size:14.5px; color:var(--ink2); line-height:1.7">
+      <div class="vtitle">prompt de arranque — copiar y adaptar</div>
+      Soy principiante total. Tengo <span style="color:var(--mono)">[Windows 11 / macOS]</span> y quiero instalar<br>
+      <span style="color:var(--mono)">[herramienta]</span> para programar con IA sin usar la terminal.<br>
+      Guiame paso a paso, uno por vez, y esperá mi confirmación<br>
+      antes de seguir. Si algo falla te pego el error textual.</div>`),
+  ]},
+
+{ id:"cierre", rail:"Cierre", notes:"",
+  steps:[
+    P("Cerrando la sesión de hoy"),
+    H2("Para el jueves que viene"),
+    RAW(`<div class="card step" style="max-width:640px"><ul style="font-size:17px; line-height:1.8">
+      <li><strong>Leer:</strong> paper GPT (WP 853) + «Building effective agents» (Anthropic) — en Bibliografía Clase 1</li>
+      <li><strong>Entregar:</strong> Entrega 1 — descomposición de un proceso (Moodle)</li>
+      <li><strong>Traer:</strong> tu entorno funcionando (o tus preguntas al foro antes)</li>
+    </ul></div>`),
+    T("Clase 2: <strong>prompting como diseño de instrucciones</strong> — y cuánto cuesta, en tokens y en plata, cada decisión de diseño."),
+    A("guardando estado de la sesión… ✓"),
+    A("próxima ejecución: <span style='color:var(--ink2)'>jueves 20/8 · 19:00</span>"),
+    A("agente-docente: <span style='color:var(--mono)'>hasta la próxima 👋</span>"),
+  ]},
+];
+
+/* ---- engine ----------------------------------------------------------- */
+let si = 0, stepi = 0, animating = false, typeTimer = null;
+
+const rail = $("#railitems");
+SCENES.forEach((sc,i)=>{
+  const it = el(`<div class="item" data-i="${i}"><span class="mark">○</span><span>${sc.rail}</span></div>`);
+  it.onclick = ()=>{ goto(i); };
+  rail.appendChild(it);
+});
+
+function railSync(){
+  document.querySelectorAll("#rail .item").forEach((it,i)=>{
+    it.classList.toggle("done", i<si);
+    it.classList.toggle("now", i===si);
+    it.querySelector(".mark").textContent = i<si ? "✓" : (i===si ? "▸" : "○");
+  });
+  $("#counter").textContent = `escena ${si+1}/${SCENES.length}`;
+  $("#progress").style.width = ((si)/(SCENES.length-1)*100)+"%";
+  const n=$("#notesbody"); n.textContent = SCENES[si].notes||"";
+}
+
+function renderScene(){
+  const host = $("#scene"); host.innerHTML="";
+  stepi = 0; railSync();
+  advanceStep(); // reveal first step automatically
+}
+
+function buildStep(step){
+  const host = $("#scene");
+  if(step.kind==="type"){
+    const node = el(step.tagHtml); host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    const cur = el(`<span class="cursor"></span>`);
+    node.appendChild(cur);
+    let i=0; animating=true;
+    const plain = step.text;
+    typeTimer = setInterval(()=>{
+      i+=2;
+      node.innerHTML = plain.slice(0,i);
+      node.appendChild(cur);
+      if(i>=plain.length){ finishType(node,plain,cur); }
+    }, 24);
+    return;
+  }
+  if(step.kind==="tool"){
+    const node = el(`<div class="tool step mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res"></span></div>`);
+    host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    animating=true;
+    typeTimer = setTimeout(()=>{ finishTool(node, step); }, step.ms);
+    return;
+  }
+  const node = el(step.html);
+  host.appendChild(node);
+  requestAnimationFrame(()=>{
+    node.classList.add("on");
+    node.querySelectorAll(".step").forEach((c,k)=>setTimeout(()=>c.classList.add("on"), 120*k));
+    node.querySelectorAll(".bar[data-w]").forEach(b=>setTimeout(()=>b.style.width=b.dataset.w, 250));
+  });
+  host.scrollTop = host.scrollHeight;
+}
+
+function finishType(node, plain, cur){
+  clearInterval(typeTimer); typeTimer=null;
+  node.innerHTML = plain; animating=false;
+}
+function finishTool(node, step){
+  clearTimeout(typeTimer); typeTimer=null;
+  node.classList.add("ok");
+  node.querySelector(".res").textContent = "→ "+step.res;
+  animating=false;
+}
+
+function advanceStep(){
+  const sc = SCENES[si];
+  if(animating){ // skip animation
+    const host=$("#scene");
+    const last = host.lastChild;
+    const st = sc.steps[stepi-1];
+    if(st && st.kind==="type") finishType(last, st.text);
+    if(st && st.kind==="tool") finishTool(last, st);
+    return;
+  }
+  if(stepi < sc.steps.length){
+    buildStep(sc.steps[stepi]); stepi++;
+    $("#scene").scrollTop = $("#scene").scrollHeight;
+  } else if(si < SCENES.length-1){
+    si++; renderScene();
+  }
+}
+function back(){
+  if(stepi>1){ renderAll(si, stepi-1); }
+  else if(si>0){ si--; renderAll(si, SCENES[si].steps.length); }
+}
+function goto(i){ si=i; renderScene(); }
+
+function renderAll(sceneIdx, uptoSteps){
+  // re-render scene with first `uptoSteps` steps fully shown, no animation
+  const host=$("#scene"); host.innerHTML=""; stepi=0; animating=false;
+  clearInterval(typeTimer); clearTimeout(typeTimer); typeTimer=null;
+  const sc = SCENES[sceneIdx];
+  for(let k=0;k<uptoSteps;k++){
+    const step = sc.steps[k];
+    if(step.kind==="type"){
+      const node = el(step.tagHtml); node.innerHTML = step.text;
+      node.classList.add("on"); host.appendChild(node);
+    } else if(step.kind==="tool"){
+      const node = el(`<div class="tool step on ok mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res">→ ${step.res}</span></div>`);
+      host.appendChild(node);
+    } else {
+      const node = el(step.html); node.classList.add("on");
+      node.querySelectorAll(".step").forEach(c=>c.classList.add("on"));
+      node.querySelectorAll(".bar[data-w]").forEach(b=>b.style.width=b.dataset.w);
+      host.appendChild(node);
+    }
+  }
+  stepi = uptoSteps; railSync();
+}
+
+document.addEventListener("keydown", e=>{
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="PageDown"){ e.preventDefault(); advanceStep(); }
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); back(); }
+  else if(e.key.toLowerCase()==="n"){ $("#notes").classList.toggle("show"); }
+  else if(e.key.toLowerCase()==="r"){ $("#rail").classList.toggle("hidden"); $("#stage").classList.toggle("wide"); }
+  else if(e.key.toLowerCase()==="f"){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+  else if(e.key==="Home"){ goto(0); }
+});
+document.addEventListener("click", e=>{
+  if(e.target.closest("#rail")||e.target.closest("#notes")) return;
+  advanceStep();
+});
+
+renderScene();
+</script>
+</body>
+</html>
