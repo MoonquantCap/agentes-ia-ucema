@@ -1,0 +1,483 @@
+<title>Semana de Batch Cooking</title>
+<style>
+:root{
+  --bg:#F7F4EF;
+  --surface:#FFFFFF;
+  --surface-2:#EFE9DF;
+  --text:#2A2118;
+  --text-muted:#7C6F60;
+  --accent:#B5541E;
+  --accent-strong:#8C3F14;
+  --accent-soft:#F2DDC9;
+  --veg:#5B7052;
+  --veg-soft:#E3E9DD;
+  --border:#E4DACB;
+  --shadow: 0 1px 2px rgba(42,33,24,0.06), 0 6px 20px rgba(42,33,24,0.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1C1712;
+    --surface:#26201A;
+    --surface-2:#302921;
+    --text:#EFE7DB;
+    --text-muted:#B0A190;
+    --accent:#E58B54;
+    --accent-strong:#F0A374;
+    --accent-soft:#402A1C;
+    --veg:#93AE87;
+    --veg-soft:#2B3327;
+    --border:#3A3128;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1C1712;
+  --surface:#26201A;
+  --surface-2:#302921;
+  --text:#EFE7DB;
+  --text-muted:#B0A190;
+  --accent:#E58B54;
+  --accent-strong:#F0A374;
+  --accent-soft:#402A1C;
+  --veg:#93AE87;
+  --veg-soft:#2B3327;
+  --border:#3A3128;
+  --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.4);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height:1.5;
+}
+.mono{ font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; font-variant-numeric: tabular-nums; }
+.wrap{ max-width: 920px; margin: 0 auto; padding: 0 20px 90px; }
+
+header.top{ padding: 40px 0 26px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.eyebrow{ font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; margin: 0 0 10px; }
+h1{ font-size: clamp(26px, 4vw, 34px); margin: 0 0 10px; text-wrap: balance; font-weight: 800; letter-spacing: -0.01em; }
+.dek{ color: var(--text-muted); font-size: 15.5px; max-width: 62ch; margin: 0 0 20px; }
+
+.summary-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 14px; margin-bottom: 22px; }
+.sumcard{ background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+.sumcard .n{ font-size: 21px; font-weight: 800; }
+.sumcard .l{ font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+.callout{ background: var(--accent-soft); border: 1px solid var(--border); color: var(--accent-strong); border-radius: 10px; padding: 13px 16px; font-size: 13.5px; line-height: 1.55; }
+.callout strong{ color: inherit; }
+
+h2.section{ font-size: 20px; font-weight: 800; margin: 44px 0 6px; letter-spacing: -0.005em; }
+.section-desc{ color: var(--text-muted); font-size: 14px; margin: 0 0 18px; max-width: 68ch; }
+
+.day{ margin-bottom: 22px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.day-head{ background: var(--surface-2); padding: 10px 18px; font-weight: 800; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-strong); }
+.meals{ display:grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 640px){ .meals{ grid-template-columns: 1fr; } }
+.meal{ padding: 16px 18px; }
+.meal + .meal{ border-left: 1px solid var(--border); }
+@media (max-width: 640px){ .meal + .meal{ border-left:none; border-top: 1px solid var(--border); } }
+.meal-kind{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+.meal h3{ font-size: 16px; margin: 0 0 8px; font-weight: 700; line-height: 1.3; }
+.tags{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom: 10px; }
+.tag{ font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 600; }
+.tag.protein{ background: var(--accent-soft); color: var(--accent-strong); }
+.tag.veg{ background: var(--veg-soft); color: var(--veg); }
+.meal p{ font-size: 13.5px; margin: 0 0 10px; color: var(--text-muted); }
+
+.recipe{ margin-top: 4px; }
+.recipe summary{ cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--accent-strong); list-style: none; display: flex; align-items: center; gap: 5px; }
+.recipe summary::-webkit-details-marker{ display: none; }
+.recipe summary::before{ content: "＋"; font-size: 12px; display: inline-block; width: 14px; }
+.recipe[open] summary::before{ content: "－"; }
+.recipe[open] summary{ margin-bottom: 10px; }
+.recipe-body{ background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+.recipe-body h5{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin: 0 0 6px; font-weight: 700; }
+.recipe-body ul{ margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
+.recipe-body ul li{ margin-bottom: 3px; }
+.recipe-body ol{ margin: 0 0 10px; padding-left: 18px; font-size: 13px; }
+.recipe-body ol li{ margin-bottom: 6px; }
+.recipe-body .reheat{ font-size: 12.5px; color: var(--accent-strong); font-weight: 600; margin: 0; }
+
+.timeline{ position: relative; padding-left: 26px; }
+.timeline::before{ content:""; position:absolute; left: 6px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+.tstep{ position: relative; margin-bottom: 18px; }
+.tstep::before{ content:""; position:absolute; left: -26px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.tstep .time{ font-size: 12px; font-weight: 800; color: var(--accent-strong); margin-bottom: 2px; }
+.tstep h4{ font-size: 14.5px; margin: 0 0 4px; font-weight: 700; }
+.tstep p{ font-size: 13.5px; color: var(--text-muted); margin: 0; }
+
+table{ width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tablewrap{ overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+th{ text-align: left; padding: 10px 14px; background: var(--surface-2); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 700; }
+td{ padding: 10px 14px; border-top: 1px solid var(--border); }
+tr:first-child td{ border-top: none; }
+td.num{ text-align: right; font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.storepill{ display:inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--veg-soft); color: var(--veg); }
+.storepill.b{ background: var(--accent-soft); color: var(--accent-strong); }
+
+.stores{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 14px; margin-bottom: 22px; }
+.storecard{ background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+.storecard h3{ margin: 0 0 4px; font-size: 15.5px; }
+.storecard .addr{ font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.storecard .dist{ font-size: 12px; color: var(--accent-strong); font-weight: 700; }
+
+footer{ margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Batch cooking &middot; semana laboral</p>
+  <h1>Tu semana en 10 viandas</h1>
+  <p class="dek">5 almuerzos (aptos microondas) + 5 cenas, cocinados en un solo bloque de domingo. Sin pescado, sin verdura cruda, dentro de tu lista de verduras habituales.</p>
+  <div class="summary-grid">
+    <div class="sumcard"><div class="n">10</div><div class="l">Comidas</div></div>
+    <div class="sumcard"><div class="n">~2h 45m</div><div class="l">Producción</div></div>
+    <div class="sumcard"><div class="n mono">$19.400</div><div class="l">Costo estimado</div></div>
+    <div class="sumcard"><div class="n mono">$1.940</div><div class="l">Promedio / comida</div></div>
+  </div>
+  <div class="callout">
+    <strong>Sobre el costo.</strong> Es una estimación de referencia — bien por debajo de tu tope de $5.000/comida. El monto real que vas a recibir cada domingo se recalcula ese mismo día con precios vigentes de los locales cercanos, no con esta cifra fija.
+  </div>
+</header>
+
+<h2 class="section">Dónde comprar</h2>
+<p class="section-desc">Radio de 15 cuadras desde Gurruchaga 2271. Combinación de 2 locales elegida por precio: verdulería a metros de tu puerta + supermercado de descuento para el resto.</p>
+<div class="stores">
+  <div class="storecard">
+    <h3>La Peruanita — verduras</h3>
+    <div class="addr">Gurruchaga 2271, Palermo (en tu misma dirección)</div>
+    <div class="dist">0 cuadras · a pie</div>
+  </div>
+  <div class="storecard">
+    <h3>DIA — proteínas y huevos</h3>
+    <div class="addr">Fitz Roy 2292, Palermo</div>
+    <div class="dist">~11 cuadras · 15 min a pie</div>
+  </div>
+</div>
+
+<h2 class="section">Lista de compras</h2>
+<p class="section-desc">Ingredientes para las 10 comidas. No incluye condimentos (sal, aceite, especias, caldo) — asumo que ya los tenés.</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Ingrediente</th><th>Cantidad</th><th>Comprar en</th></tr></thead>
+<tbody>
+<tr><td>Pechuga de pollo</td><td class="num">600 g</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Bondiola de cerdo</td><td class="num">400 g</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Carne picada</td><td class="num">500 g</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Carne vacuna para guiso (paleta/nalga en cubos)</td><td class="num">300 g</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Huevos</td><td class="num">6 u.</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Papa</td><td class="num">600 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Batata</td><td class="num">300 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Boniato</td><td class="num">300 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Zapallo</td><td class="num">300 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Cabutiá</td><td class="num">200 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Morrón</td><td class="num">300 g (2&ndash;3 u.)</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Cebolla</td><td class="num">400 g (4&ndash;5 u.)</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Zanahoria</td><td class="num">250 g</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Acelga</td><td class="num">1 atado</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Espinaca</td><td class="num">1 paquete (~250 g)</td><td><span class="storepill">La Peruanita</span></td></tr>
+<tr><td>Arroz</td><td class="num">150 g</td><td><span class="storepill b">DIA</span></td></tr>
+<tr><td>Fideos</td><td class="num">150 g</td><td><span class="storepill b">DIA</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="section">El menú, día por día</h2>
+<p class="section-desc">Todo se cocina el domingo y se guarda porcionado en tus frascos de vidrio (aptos horno y microondas). El almuerzo está pensado para recalentar rápido; la cena admite un remate rápido en sartén si querés.</p>
+
+<div class="day">
+  <div class="day-head">Lunes</div>
+  <div class="meals">
+    <div class="meal">
+      <div class="meal-kind">Almuerzo</div>
+      <h3>Pollo al horno con puré de batata y zanahoria</h3>
+      <div class="tags"><span class="tag protein">Pollo</span><span class="tag veg">Batata</span><span class="tag veg">Zanahoria</span><span class="tag veg">Espinaca</span></div>
+      <p>Pechuga sellada y terminada al horno; puré de batata y zanahoria con espinaca salteada procesada dentro, así no se nota la hoja.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>200 g pechuga de pollo</li><li>150 g batata</li><li>90 g zanahoria</li><li>50 g espinaca</li><li>Un poco de cebolla del sofrito común</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Pelar y cubetear batata y zanahoria; hervir 15&ndash;18 min hasta que estén tiernas.</li>
+            <li>Sellar la pechuga en sartén caliente 3&ndash;4 min por lado; terminar en horno a 200&deg;C 12&ndash;15 min hasta los 74&deg;C internos.</li>
+            <li>Escurrir batata y zanahoria, procesar con un chorrito de leche o del agua de cocción hasta lograr puré.</li>
+            <li>Saltear la espinaca 2&ndash;3 min hasta que se marchite, picarla fina y mezclarla dentro del puré para camuflarla.</li>
+            <li>Cortar el pollo en fetas y guardar todo junto en el frasco.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas, tapado.</p>
+        </div>
+      </details>
+    </div>
+    <div class="meal">
+      <div class="meal-kind">Cena</div>
+      <h3>Guiso de carne vacuna con papa, zanahoria, cebolla y zapallo</h3>
+      <div class="tags"><span class="tag protein">Carne vacuna</span><span class="tag veg">Papa</span><span class="tag veg">Zanahoria</span><span class="tag veg">Zapallo</span></div>
+      <p>Guiso clásico a fuego lento — la carne queda tierna y las verduras se deshacen parcialmente en la salsa.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>220 g carne vacuna en cubos (paleta o nalga)</li><li>150 g papa</li><li>60 g zanahoria</li><li>40 g cebolla</li><li>100 g zapallo</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Sellar la carne en cubos en una olla con aceite a fuego fuerte, 4&ndash;5 min. Reservar.</li>
+            <li>En la misma olla, rehogar la cebolla picada 3&ndash;4 min.</li>
+            <li>Devolver la carne a la olla, cubrir con agua o caldo, cocinar tapado a fuego bajo 40 min.</li>
+            <li>Agregar papa, zanahoria y zapallo en cubos; cocinar 20&ndash;25 min más hasta que la carne esté tierna y la salsa espese.</li>
+            <li>Guardar en el frasco de vidrio.</li>
+          </ol>
+          <p class="reheat">Recalentado: 3 min en microondas, tapado, revolviendo a mitad de cocción.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="day">
+  <div class="day-head">Martes</div>
+  <div class="meals">
+    <div class="meal">
+      <div class="meal-kind">Almuerzo</div>
+      <h3>Bondiola de cerdo sous vide con guiso de zapallo, cebolla y morrón</h3>
+      <div class="tags"><span class="tag protein">Cerdo</span><span class="tag veg">Zapallo</span><span class="tag veg">Cebolla</span><span class="tag veg">Morrón</span></div>
+      <p>Cerdo cocido a baja temperatura en el roner, dorado 1 minuto por lado antes de guardar. El morrón y la cebolla se cocinan hasta quedar bien blandos.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>200 g bondiola de cerdo</li><li>100 g zapallo</li><li>40 g cebolla</li><li>50 g morrón</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Sellar la bondiola cruda 1 min por lado en sartén (opcional, suma sabor), colocarla en bolsa con un chorrito de aceite y cerrarla al vacío o por desplazamiento de agua.</li>
+            <li>Cocinar en el roner a 63&ndash;65&deg;C durante 90&ndash;120 min.</li>
+            <li>Mientras tanto, cortar zapallo, cebolla y morrón en cubos chicos; rehogar en sartén tapada a fuego medio-bajo 20&ndash;25 min hasta que estén bien blandos, casi deshechos.</li>
+            <li>Sacar la bondiola del agua, secar y dorar 1 min por lado en sartén bien caliente.</li>
+            <li>Cortar en fetas, servir sobre el guiso de zapallo y guardar en el frasco.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+    <div class="meal">
+      <div class="meal-kind">Cena</div>
+      <h3>Pollo sous vide con puré de papa y morrón salteado</h3>
+      <div class="tags"><span class="tag protein">Pollo</span><span class="tag veg">Papa</span><span class="tag veg">Morrón</span></div>
+      <p>Mismo lote de pollo del roner, con puré simple de papa y morrón bien pochado como guarnición.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>200 g pechuga de pollo</li><li>150 g papa</li><li>60 g morrón</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Cocinar el pollo en el roner a 65&deg;C 60&ndash;75 min (puede ir en la misma tanda que la bondiola, en bolsas separadas).</li>
+            <li>Hervir la papa en cubos 15 min y hacer puré con un chorrito de leche.</li>
+            <li>Cortar el morrón en tiras finas, saltear 8&ndash;10 min hasta que ablande y tome color.</li>
+            <li>Sellar el pollo 1 min por lado y cortar en fetas.</li>
+            <li>Guardar pollo, puré y morrón salteado en el frasco.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="day">
+  <div class="day-head">Miércoles</div>
+  <div class="meals">
+    <div class="meal">
+      <div class="meal-kind">Almuerzo</div>
+      <h3>Carne picada a la boloñesa con fideos</h3>
+      <div class="tags"><span class="tag protein">Carne picada</span><span class="tag veg">Zanahoria</span><span class="tag veg">Morrón</span><span class="tag veg">Cebolla</span></div>
+      <p>Zanahoria y morrón procesados bien finos en la salsa — quedan como textura, no como verdura reconocible.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>250 g carne picada</li><li>60 g zanahoria</li><li>60 g morrón</li><li>40 g cebolla</li><li>60 g fideos secos</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Rehogar la cebolla picada 3&ndash;4 min en sartén con aceite.</li>
+            <li>Agregar la carne picada, cocinar a fuego medio-alto 8&ndash;10 min hasta que pierda el color rosado, desarmando los grumos.</li>
+            <li>Procesar la zanahoria y el morrón crudos hasta que queden bien finos; incorporar a la carne junto con salsa de tomate y cocinar 15 min a fuego bajo hasta espesar.</li>
+            <li>Hervir los fideos aparte según el paquete, escurrir.</li>
+            <li>Mezclar con la salsa o guardar por separado en el mismo frasco.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas, revolviendo a mitad de cocción.</p>
+        </div>
+      </details>
+    </div>
+    <div class="meal">
+      <div class="meal-kind">Cena</div>
+      <h3>Cerdo al horno con boniato asado y espinaca salteada</h3>
+      <div class="tags"><span class="tag protein">Cerdo</span><span class="tag veg">Boniato</span><span class="tag veg">Espinaca</span></div>
+      <p>Boniato en gajos, asado junto con la bandeja de verduras del domingo. Espinaca apenas salteada, no cruda.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>200 g bondiola o carré de cerdo</li><li>150 g boniato</li><li>80 g espinaca</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Cortar el boniato en gajos, rociar con aceite y llevar al horno a 200&deg;C 35&ndash;40 min, dando vuelta a mitad de cocción.</li>
+            <li>Sellar el cerdo 2 min por lado en sartén; terminar en el horno junto con el boniato los últimos 20&ndash;25 min, hasta 68&ndash;70&deg;C internos.</li>
+            <li>Saltear la espinaca 2&ndash;3 min hasta que se marchite (nunca cruda).</li>
+            <li>Cortar el cerdo en fetas y guardar junto con el boniato y la espinaca.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="day">
+  <div class="day-head">Jueves</div>
+  <div class="meals">
+    <div class="meal">
+      <div class="meal-kind">Almuerzo</div>
+      <h3>Tarta de acelga, cebolla y huevo (sin masa)</h3>
+      <div class="tags"><span class="tag protein">Huevo</span><span class="tag veg">Acelga</span><span class="tag veg">Cebolla</span></div>
+      <p>Acelga bien cocida y picada, mezclada con huevo batido y cebolla rehogada, horneada en molde individual tipo frittata.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>3 huevos</li><li>100 g acelga (medio atado aprox.)</li><li>40 g cebolla</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Lavar y cortar la acelga; blanquearla 2 min en agua hirviendo, escurrir bien y picar.</li>
+            <li>Rehogar la cebolla picada 4&ndash;5 min hasta transparentar.</li>
+            <li>Batir los huevos y mezclar con la acelga y la cebolla.</li>
+            <li>Volcar en un molde individual enmantecado o en un frasco apto horno.</li>
+            <li>Hornear a 180&deg;C 20&ndash;25 min hasta que cuaje y dore la superficie.</li>
+          </ol>
+          <p class="reheat">Recalentado: 1&ndash;2 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+    <div class="meal">
+      <div class="meal-kind">Cena</div>
+      <h3>Frittata de papa, espinaca y huevo</h3>
+      <div class="tags"><span class="tag protein">Huevo</span><span class="tag veg">Papa</span><span class="tag veg">Espinaca</span></div>
+      <p>Papa precocida en rodajas finas, espinaca salteada y huevo, horneada y cortada en porción.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>3 huevos</li><li>120 g papa</li><li>80 g espinaca</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Cortar la papa en rodajas finas, hervir 8&ndash;10 min hasta que estén casi tiernas.</li>
+            <li>Saltear la espinaca 2 min hasta que se marchite.</li>
+            <li>Batir los huevos y mezclar con la papa y la espinaca.</li>
+            <li>Volcar en molde individual y hornear a 180&deg;C 20&ndash;22 min (puede compartir horno con la tarta de acelga).</li>
+          </ol>
+          <p class="reheat">Recalentado: 1&ndash;2 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="day">
+  <div class="day-head">Viernes</div>
+  <div class="meals">
+    <div class="meal">
+      <div class="meal-kind">Almuerzo</div>
+      <h3>Pollo desmenuzado con salsa de morrón y cebolla sobre arroz</h3>
+      <div class="tags"><span class="tag protein">Pollo</span><span class="tag veg">Morrón</span><span class="tag veg">Cebolla</span></div>
+      <p>Último resto del pollo sous vide, desmenuzado y mezclado con salsa de morrón bien reducida.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>200 g pechuga de pollo (del mismo lote sous vide)</li><li>60 g morrón</li><li>40 g cebolla</li><li>50 g arroz</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Desmenuzar el pollo ya cocido con dos tenedores.</li>
+            <li>Rehogar cebolla y morrón en tiras 10&ndash;12 min hasta bien blandos; procesar hasta lograr una salsa espesa.</li>
+            <li>Mezclar el pollo desmenuzado con la salsa, cocinar 3&ndash;4 min juntos para integrar sabores.</li>
+            <li>Hervir el arroz aparte según el paquete.</li>
+            <li>Guardar el pollo con salsa y el arroz en el frasco.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+    <div class="meal">
+      <div class="meal-kind">Cena</div>
+      <h3>Carne picada con salsa de morrón, cebolla y zanahoria sobre puré de papa</h3>
+      <div class="tags"><span class="tag protein">Carne picada</span><span class="tag veg">Morrón</span><span class="tag veg">Zanahoria</span><span class="tag veg">Papa</span></div>
+      <p>Variante de la boloñesa del miércoles, sobre puré en vez de fideos para cerrar la semana distinto.</p>
+      <details class="recipe">
+        <summary>Receta completa</summary>
+        <div class="recipe-body">
+          <h5>Ingredientes (1 porción)</h5>
+          <ul><li>250 g carne picada</li><li>60 g morrón</li><li>40 g cebolla</li><li>60 g zanahoria</li><li>150 g papa</li></ul>
+          <h5>Preparación</h5>
+          <ol>
+            <li>Rehogar la cebolla, agregar la carne picada y cocinar 8&ndash;10 min.</li>
+            <li>Procesar morrón y zanahoria crudos; incorporar a la carne con un poco de salsa de tomate y cocinar 15 min.</li>
+            <li>Hervir la papa 15 min y hacer puré.</li>
+            <li>Guardar la carne con salsa sobre el puré.</li>
+          </ol>
+          <p class="reheat">Recalentado: 2&ndash;3 min en microondas.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<h2 class="section">Producción del domingo</h2>
+<p class="section-desc">~2h 45m con procesos en paralelo: mientras el roner y el horno trabajan solos, vos avanzás en la hornalla.</p>
+<div class="timeline">
+  <div class="tstep">
+    <div class="time">0:00 &ndash; 0:15</div>
+    <h4>Mise en place</h4>
+    <p>Pelar y cortar toda la verdura de una vez, separada por receta. Lavar y trozar acelga y espinaca.</p>
+  </div>
+  <div class="tstep">
+    <div class="time">0:15</div>
+    <h4>Arrancar el roner (65&deg;C)</h4>
+    <p>Bolsas separadas: pechugas de pollo (para 3 comidas) y bondiola de cerdo (para 2 comidas). Cocción pasiva ~1h 45m.</p>
+  </div>
+  <div class="tstep">
+    <div class="time">0:20</div>
+    <h4>Horno a 200&deg;C</h4>
+    <p>Bandeja de papa, batata, boniato, zapallo, cabutiá y cebolla en cubos, 40&ndash;45 min. Después, la tarta y la frittata (25&ndash;30 min cada una, pueden compartir horno).</p>
+  </div>
+  <div class="tstep">
+    <div class="time">0:20 &ndash; 1:10</div>
+    <h4>Hornallas en simultáneo</h4>
+    <p>Sofrito grande de cebolla y morrón (se reparte en 4 recetas) &middot; carne picada con salsa (2 porciones) &middot; guiso de carne vacuna a fuego lento &middot; agua para huevos duros y para blanquear acelga/espinaca.</p>
+  </div>
+  <div class="tstep">
+    <div class="time">1:10 &ndash; 1:40</div>
+    <h4>Tarta y frittata al horno</h4>
+    <p>Batir huevo con acelga rehogada para la tarta; papa laminada y espinaca para la frittata. Ambas al horno en moldes individuales.</p>
+  </div>
+  <div class="tstep">
+    <div class="time">1:40 &ndash; 2:10</div>
+    <h4>Sellar y terminar</h4>
+    <p>Sacar pollo y cerdo del roner, sellar 1 min por lado en sartén caliente. Cocinar arroz y fideos en la olla que quedó libre. Armar la salsa de morrón para el pollo desmenuzado.</p>
+  </div>
+  <div class="tstep">
+    <div class="time">2:10 &ndash; 2:45</div>
+    <h4>Porcionado</h4>
+    <p>Repartir las 10 preparaciones en los frascos de vidrio, etiquetar por día, dejar entibiar 15&ndash;20 min antes de tapar y guardar en heladera/freezer.</p>
+  </div>
+</div>
+
+<footer>
+  Generado para uso personal &middot; radio de compra: 15 cuadras desde Gurruchaga 2271, Palermo, CABA. A partir de la próxima semana, este mismo plan se regenera automáticamente todos los domingos antes de las 10 a.m., con menú rotado y precios verificados ese día.
+</footer>
+
+</div>
