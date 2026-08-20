@@ -254,6 +254,24 @@ const SCENES = [
     T("La utilidad práctica no es llenar una plantilla: es el <strong>diagnóstico</strong>. Cuando un resultado decepciona, la pregunta profesional es: ¿cuál de las seis piezas falta o está floja?"),
   ]},
 
+{ id:"ejemplo", rail:"El mismo pedido, marcado", notes:"",
+  steps:[
+    P("Veamos dónde cae cada pieza, con un pedido real"),
+    H2("El mismo pedido, dos escrituras"),
+    RAW(`<div class="viz mono step" style="font-size:14.5px; line-height:1.8; border-color:#5a2b2b">
+      <div class="vtitle" style="color:#ff6b81">el prompt que escribe todo el mundo</div>
+      Analizame estos contratos y decime si hay riesgos.</div>`),
+    RAW(`<div class="viz mono step" style="font-size:13.5px; line-height:2.05">
+      <div class="vtitle">el mismo pedido, con las seis piezas</div>
+      <span style="background:#ff6b8122; color:#ff6b81; padding:2px 7px; border-radius:4px; font-size:11px">1 · ROL</span> <span style="color:#ff9baa">Sos un abogado corporativo senior, especialista en contratos de proveedores.</span><br>
+      <span style="background:#ffb45422; color:#ffb454; padding:2px 7px; border-radius:4px; font-size:11px">2 · CONTEXTO</span> <span style="color:#ffcf8f">Te paso los 40 contratos vigentes de la carpeta. Somos una pyme argentina; nos preocupa la exposición si un proveedor rescinde.</span><br>
+      <span style="background:#7dd3fc22; color:#7dd3fc; padding:2px 7px; border-radius:4px; font-size:11px">3 · TAREA</span> <span style="color:#aee3ff">Identificá en cada contrato la cláusula de rescisión y evaluá el riesgo para nosotros.</span><br>
+      <span style="background:#c792ea22; color:#c792ea; padding:2px 7px; border-radius:4px; font-size:11px">4 · RESTRICCIONES</span> <span style="color:#ddb8f5">Solo riesgo de rescisión — no analices precios ni confidencialidad. Si un contrato no tiene la cláusula, marcalo, no inventes. Máximo una línea por contrato.</span><br>
+      <span style="background:#34d39922; color:#34d399; padding:2px 7px; border-radius:4px; font-size:11px">5 · FORMATO</span> <span style="color:#7fe6c0">Tabla: contrato · cláusula (cita textual) · riesgo alto/medio/bajo · monto expuesto · vencimiento. Ordenada por riesgo.</span><br>
+      <span style="background:#f2d67522; color:#f2d675; padding:2px 7px; border-radius:4px; font-size:11px">6 · EJEMPLOS</span> <span style="color:#f7e6a8">Ejemplo de fila: Proveedor_14.pdf · «cualquiera de las partes podrá rescindir sin causa con 30 días de aviso» · alto · USD 240.000 · 30/11/2026.</span></div>`),
+    T("El primero no está mal escrito — está <strong>incompleto</strong>: tiene la tarea y nada más. Cinco contratos de seis quedaron sin firmar, y ese vacío lo llena el modelo adivinando. El segundo se escribió una vez, y corre todas las semanas."),
+  ]},
+
 { id:"systemuser", rail:"System y user prompt", notes:"",
   steps:[
     P("¿Dónde viven esas piezas cuando el sistema corre solo?"),
