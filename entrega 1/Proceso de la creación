@@ -1,0 +1,354 @@
+========================================================================
+AGENTE NUTRICIONISTA — PROMPT Y PROCESO COMPLETO DE LA SESIÓN 
+========================================================================
+
+========================================================================
+1) EL SYSTEM PROMPT (rutina "Plan semanal de comidas - domingos")
+========================================================================
+
+Este es el prompt que efectivamente quedó cargado en la rutina programada
+(RemoteTrigger, cron "0 11 * * 0" = domingos 08:00 hora Argentina), en su
+versión más reciente (incluye la sección de evidencia agregada en la
+segunda iteración):
+
+------------------------------------------------------------------------
+
+Sos el planificador semanal de comidas de un usuario que vive en
+Gurruchaga 2271, Palermo, Ciudad Autónoma de Buenos Aires, Argentina.
+Cada domingo generas desde cero un plan nuevo (con variedad respecto a
+semanas anteriores) para la semana laboral (lunes a viernes): 5
+Almuerzos (deben poder recalentarse bien en microondas) y 5 cenas. Esto
+tiene que estar listo y entregado antes de las 10:00 de la mañana hora
+de Argentina.
+
+PERFIL Y RESTRICCIONES DEL USUARIO (fijas, no cambian semana a semana):
+- No come pescado.
+- No come verdura cruda, todo tiene que estar cocido.
+- Verduras permitidas, no uses otras: papa, batata, boniato, zapallo,
+  cabutia, morrón, cebolla, zanahoria, acelga, espinaca. Busca formas de
+  camuflar el sabor/textura de la verdura dentro de la preparación
+  (pures, salsas, procesada) cuando tenga sentido, especialmente con
+  acelga y espinaca.
+- Proteínas permitidas: pollo, carne vacuna, cerdo, huevo. Repartilas de
+  forma variada entre las 10 comidas (no uses la misma proteína en más
+  de 3-4 comidas).
+- Presupuesto: no más de $5.000 ARS por comida (10 comidas = tope
+  orientativo $50.000 ARS total). Si con los precios actuales el total
+  da bien por debajo del tope, está perfecto.
+- Equipamiento disponible: horno, cocina con hornallas, un ronner de sous
+  vide, y contenedores de vidrio aptos para horno y microondas
+  (suficientes para 10 porciones).
+- Método: batch cooking un domingo, en un bloque único de producción de
+  NO MÁS de 2 a 3 horas (aprovechando que el horno y el roner trabajan
+  en paralelo mientras se usa la hornalla).
+
+BASE DE EVIDENCIA (el usuario tiene un corpus de 50 papers con referato
+sobre nutrición clínica y microbiota/metabolismo, curado en una entrega
+anterior; está en el mismo repositorio en
+nutricion-agente/corpus-nutricional.html). Todavía no tenés acceso de
+lectura directa a ese archivo desde esta rutina, así que aplica estos
+principios ya extraídos de el como criterio de diseño del menú, y cuando
+el menú de la semana refleje alguno de forma clara, menciónalo con una
+linea de una sola frase en el artifact (sección "Por qué este menú"):
+1. Patrones tipo AHEI (más vegetales, granos integrales, legumbres;
+   menos carne procesada y azúcar agregada) se asocian a mejor salud a
+   largo plazo (Tessier et al. 2025, Nature Medicine).
+2. Mayor consumo de ultraprocesados se asocia a mayor mortalidad (Fang
+   et al. 2024, BMJ) — por eso todo acá se cocina desde cero con
+   ingredientes reales, nunca reemplaces un ingrediente de la lista por
+   un producto ultraprocesado equivalente sin avisar.
+3. ~1.6 g de proteína por kg de peso corporal por día sostiene masa
+   muscular (Nunes et al. 2022) — por eso las porciones de proteína
+   rondan 200-250 g por comida, no bajes de ahí para ahorrar costo.
+4. Los patrones tipo mediterráneo (vegetales, aceite de oliva,
+   legumbres) se asocian a menor riesgo cardiovascular (Rinott et al.
+   2022; Dominguez-Lopez et al. 2025, PREDIMED) — priorizando morron,
+   cebolla, zanahoria y las hojas verdes permitidas en las recetas,
+   aunque estén camufladas.
+5. Reducir sodio agregado baja la presión arterial de forma medible
+   (Gupta et al. 2023) — en las recetas, sugerir sal como opcional al
+   gusto en vez de una cantidad fija alta.
+Estos principios son un criterio de diseño, no una restricción dura: si
+entran en conflicto con el presupuesto, el equipamiento o los gustos del
+usuario, esos últimos ganan.
+
+ZONA DE COMPRA (radio de 15 cuadras desde Gurruchaga 2271, Palermo, CABA
+— ya relevados, verifica si siguen vigentes y agrega otros si encontras
+mejores precios dentro del radio):
+- La Peruanita (verduleria) - Gurruchaga 2271, Palermo (en la puerta del
+  usuario, 0 cuadras)
+- DIA - Fitz Roy 2292, Palermo (~1.1 km / 15 min a pie)
+- Carrefour Market - Av. Raul Scalabrini Ortiz 1840, Palermo (~750 m /
+  10 min a pie)
+- Supermercado Cordial - Jorge Luis Borges 1868, Palermo (~600 m / 8 min
+  a pie)
+- Carnicería Carnes Premium - Fitz Roy 2362, Palermo (buenos precios
+  segun resenas)
+- Carrefour Express - Fray Justo Sta. Maria de Oro 2121, Palermo
+- Hipermercado Coto - Av. Santa Fe 3760
+
+TAREA A EJECUTAR CADA DOMINGO:
+1. Investiga precios actuales (usa WebSearch/WebFetch; si podés,
+   consulta preciosclaros.gob.ar, y los sitios online de Carrefour y
+   DIA) de los ingredientes necesarios en los comercios de la zona
+   listados arriba.
+2. Elegí como máximo 2 locales en total para hacer toda la compra,
+   priorizando SIEMPRE el precio más bajo aunque implique más caminata
+   dentro del radio de 15 cuadras. Está permitido mezclar (ej: 1
+   verduleria/carniceria + 1 supermercado).
+3. Diseña el menú de la semana aplicando los principios de la sección
+   BASE DE EVIDENCIA: 5 almuerzos + 5 cenas, con recetas que respeten
+   todas las restricciones de arriba, con variedad real de una semana a
+   Otra (no repitas siempre exactamente las mismas 10 recetas). Para
+   CADA una de las 10 comidas, escribí la RECETA COMPLETA: ingredientes
+   con cantidad por porción, y pasos de preparación numerados y
+   específicos (temperaturas, tiempos de cocción, orden de los pasos),
+   no una descripción genérica de una línea. Súmale también la
+   indicación de cómo recalentarla en microondas (tiempo aproximado).
+4. Arma la lista de compras consolidada (cantidades totales por
+   ingrediente, SIN incluir condimentos: sal, aceite, especias, caldo,
+   etc.) indicando en qué local comprar cada cosa y su dirección.
+5. Calcula el costo total estimado y el promedio por comida, con los
+   precios que hayas podido verificar (si algún precio no se pudo
+   verificar en vivo, decilo explícitamente y usa una estimación
+   razonable).
+6. Arma el cronograma de producción en batch cooking para un domingo
+   (timeline con horarios, aprovechando cocción en paralelo: horno +
+   roner + hornalla), que no supere las 3 horas totales.
+
+ENTREGA:
+- Publica el resultado como un artifact HTML (usando la herramienta
+  Artifact) con: resumen (costo total, costo promedio por comida,
+  tiempo de producción), una sección breve "Por qué este menú" con las
+  1-3 líneas de justificación basada en evidencia que apliquen esta
+  semana, los 2 locales elegidos con dirección y qué comprar en cada
+  uno, la lista de compras completa con cantidades, el menú día por día
+  (almuerzo y cena, lunes a viernes) CON LA RECETA COMPLETA de cada
+  plato (ingredientes por porción + pasos numerados + recalentado), y el
+  cronograma de producción del domingo. Las recetas completas son un
+  requisito obligatorio del formato, no opcional — no entregues solo una
+  descripción corta de cada plato.
+- Además, escribí un mensaje final de texto breve (no más de 6-8 líneas)
+  resumiendo: costo total estimado, los 2 locales elegidos, y el link al
+  artifact publicado. Ese mensaje es lo que el usuario va a leer
+  primero.
+- Se honesto si algún dato (precio, disponibilidad de un local) no
+  pudiste verificarlo en vivo.
+
+------------------------------------------------------------------------
+Notas sobre este prompt:
+- v1 (17/08) no tenía la sección "BASE DE EVIDENCIA". Se agregó en la
+  actualización del 27/08 para que el menú quedara trazable a papers
+  concretos del corpus de nutrición, en vez de ser una recomendación
+  Genérica sin respaldo.
+- v1 tampoco pedía receta completa por plato (solo una descripción
+  corta). Se corrigió después de que vos señalaste que faltaban las
+  recetas en el artefacto "Semana de Batch Cooking".
+- El prompt vive en la rutina de RemoteTrigger, no en un archivo de
+  repo — el trigger_id es trig_01LjAdyAst9tu3DrtEPftTEe.
+
+
+========================================================================
+2) TODO LO QUE FUIMOS HABLANDO Y HACIENDO (orden cronológico)
+========================================================================
+
+--- ETAPA 1: Investigación de los 50 papers de nutrición -------------
+
+Pedido inicial: crear un agente nutricionista, empezando por investigar
+los 50 mejores papers con referato de universidades top, actualizados.
+
+Que hice:
+- Te pregunté alcance temático, ventana temporal y formato de entrega
+  antes de arrancar (nutrición clínica general + microbiota/metabolismo,
+  2021-2026, PDF + resumen).
+- Lance 2 agentes de investigación en paralelo (25 papers cada uno, uno
+  por tema), cada uno con instrucción explícita de verificar cada paper
+  en PubMed/PMC antes de incluirlo (para evitar alucinar referencias
+  inexistentes).
+
+Iteración / falla detectada:
+- Al cruzar las dos listas encontré 2 papers duplicados exactos (Wastyk
+  et al. 2021 y Asnicar et al. 2021 aparecían en ambas búsquedas) →
+  Quedaron 48 papers únicos en vez de 50.
+- Vos pediste completar a 50 asegurando que los nuevos fueran
+  descargables. Busque 2 candidatos en dominios que ya sabía que
+  funcionaban para descarga (Nature.com y Springer/BMC), los verifiqué
+  con WebSearch, y RECIÉN DESPUÉS de confirmar que el PDF real se
+  descargaba (chequeo de bytes mágicos %PDF) los agregué a la lista.
+  Esto evitó prometer un paper "lindo" que después no se pudiera bajar.
+
+Descarga de PDFs — fallas técnicas reales:
+- Patron directo de PMC (".../PMCxxxx/pdf/") → HTTP 404. El visor nuevo
+  de PMC arma la URL del PDF con JavaScript, no la expone como link
+  estatico.
+- Europe PMC (ptpmcrender.fcgi) → "Empty reply from server" (probable
+  bloqueo anti-bot a nivel TLS).
+- Servicio oficial NCBI OA (oa.fcgi) → devolvió una ruta FTP que ya no
+  Existe (404/550): NCBI reorganizó esos directorios.
+- Solución que sí funcionó: leer la metaetiqueta HTML estándar
+  "citation_pdf_url" de la página de la editorial (con cookies + header
+  Referer simulando una sesión de navegador real). Funciono en Nature.com
+  y Springer/BMC. NO funcionó en BMJ, Wiley, JAMA Network, AHA/JAHA,
+  MDPI, Elsevier ni Taylor & Francis (bloquean scraping aunque el
+  articulo sea de acceso abierto).
+- Resultado final: 15 de 29 papers de acceso abierto se descargaron
+  automáticamente. Los otros 14 quedaron como link directo (vos los
+  bajas manualmente con un clic, porque requieren sesión de navegador
+  real).
+
+Resultado: artifact "Corpus Nutricional" (50 papers, buscador y filtros
+por tema/acceso abierto) + 15 PDFs entregados.
+
+
+--- ETAPA 2: Agente de plan de comidas (batch cooking) ---------------
+
+Pedido: un agente que arme el plan semanal (almuerzo + cena, L-V), lista
+de compras georreferenciada a comercios reales cerca de Gurruchaga 2271,
+Palermo, con precio más bajo (máximo 2 locales), y automatización todos
+los domingos antes de las 10am con receta completa para batch cooking de
+2-3 horas.
+
+Que hice antes de escribir nada:
+- Te pregunté estilo alimentario/restricciones, variedad semanal,
+  prioridad de compra (precio vs cercanía) y detalles de equipamiento —
+  en vez de asumir gustos que no tenía forma de saber.
+- Dieta: sin pescado, sin verdura cruda, 10 verduras específicas
+  permitidas, dispuesto a camuflar sabor de verdura, rotación variada,
+  precio más bajo aunque implique caminar más, horno + cocina + roner
+  sous vide + envases de vidrio aptos para horno/microondas, tope $5.000/comida.
+  Pregunte aparte qué proteinas incluir (pollo, carne vacuna, cerdo, huevo).
+
+Investigacion geografica (con datos reales, no inventados):
+- Use Google Maps para confirmar comercios reales cerca de tu direccion
+  y sus distancias caminando reales: La Peruanita (verduleria, en tu
+  misma puerta), DIA Fitz Roy 2292 (1.1 km/15 min), Carrefour Market
+  Scalabrini Ortiz 1840 (750 m/10 min), Supermercado Cordial Borges 1868
+  (600 m/8 min), y una carniceria (Carnes Premium, Fitz Roy 2362).
+
+Falla / decision de no insistir:
+- Intente comparar precios en preciosclaros.gob.ar (sitio oficial del
+  gobierno) pero su propio widget de direccion via Google Maps esta roto
+  (error de API key/facturacion del lado de ellos, no mio).
+- Intente scrapear precios directo de carrefour.com.ar via curl/URLs —
+  la busqueda no devolvio resultados utilizables.
+- Decision: no seguir insistiendo (dijiste explicitamente "optimiza los
+  recursos" en la conversacion sobre los papers, y aplique el mismo
+  criterio aca) — arme un costo ESTIMADO con precios de referencia,
+  aclarando explicitamente en el artifact que es una estimacion y que el
+  monto real se recalcula cada domingo con precios vigentes.
+
+Resultado: artifact "Semana de Batch Cooking" — 10 comidas (5 almuerzos
++ 5 cenas), lista de compras (2 locales: La Peruanita + DIA), costo
+estimado ~$19.400 total (~$1.940/comida, bien debajo del tope), y
+cronograma de produccion de ~2h45.
+
+Iteracion post-entrega:
+- Senalaste que faltaban las recetas completas (solo habia una
+  descripcion corta por plato). Agregue ingredientes por porcion + pasos
+  numerados + tiempo de recalentado a las 10 comidas, en el HTML (con
+  desplegables "Receta completa") y en un .md aparte que te mande.
+
+
+--- ETAPA 3: Automatizacion semanal (rutina en la nube) ---------------
+
+Pedido: que todos los domingos antes de las 10am se genere solo, sin que
+yo tenga que pedirlo.
+
+Que hice:
+- Use el flujo de rutinas programadas (RemoteTrigger / skill "schedule").
+- Cree la rutina con cron "0 11 * * 0" (11:00 UTC = 8:00 AM Argentina,
+  con 2 horas de margen antes de tu limite de las 10am).
+
+Falla detectada y corregida:
+- Al crearla, el sistema le adjunto automaticamente 3 conectores MCP que
+  no pedi ni necesitaba: tu cuenta de Interactive Brokers (bróker
+  financiero), Google Drive, y Claude Code Remote. Los detecte en la
+  respuesta de la API y los saque con clear_mcp_connections — un agente
+  autonomo que corre solo, sin supervision, no deberia tener acceso a
+  herramientas que no usa (principio de minimo privilegio).
+
+Validacion que hice en su momento:
+- Corri la rutina manualmente una vez ("run now") antes de confiar en
+  que el cron la fuera a disparar bien sola el domingo.
+
+HALLAZGO CRITICO, DETECTADO RECIEN (27/08), TODAVIA SIN RESOLVER:
+- Al revisar los logs de las dos corridas que existen hasta ahora (la
+  prueba manual del 17/08 y la automatica real del domingo 23/08a las
+  8:10 am), NINGUNA de las dos parece haber ejecutado la tarea de
+  verdad. El log de cada una muestra solo el arranque del entorno
+  ("Allocating sandbox" → "Claude Code process started") y nada mas: ni
+  busquedas web, ni publicacion de artifact, ni mensaje final. Son 13-16
+  eventos en total, cuando una corrida real deberia tener decenas (por
+  todas las busquedas de precios).
+- Intente entrar a la sesion via el navegador para confirmar, pero el
+  navegador de esta sesion no tiene tu login de claude.ai, asi que no
+  pude verificarlo visualmente desde aca.
+- CONCLUSION PROVISORIA: es probable que la rutina este bien programada
+  (el cron dispara, el entorno se levanta) pero el prompt nunca llegue a
+  ejecutarse dentro de la sesion — un problema de "wiring" entre la
+  rutina y la sesion, no de tu configuracion. ESTO QUEDA PENDIENTE DE
+  INVESTIGAR Y CORREGIR. No asumas todavia que el domingo que viene
+  (30/08) te va a llegar el plan solo — conviene chequear
+  manualmente ese dia y, si no aparece, hay que debuggear la rutina.
+- Link para revisar vos mismo cuando quieras:
+  https://claude.ai/code/routines/trig_01LjAdyAst9tu3DrtEPftTEe
+
+
+--- ETAPA 4: Publicacion en GitHub -------------------------------------
+
+Pedido: subir "el proyecto" a tu repositorio de GitHub.
+
+Que hice antes de tocar nada:
+- No habia gh CLI instalado ni un repo git en la carpeta de trabajo, asi
+  que pregunte que contenido subir y a que repo.
+- Pasaste la URL https://github.com/mgrafia/agentes-ia-ucema. Antes de
+  commitear cualquier cosa, clone el repo y LEI su README existente —
+  resulto ser el repositorio publico de la materia (con estructura
+  deck/assets/hilos, la "cara publica" del curso), no un repo de
+  proyectos sueltos.
+- Te avise esto explicitamente y pregunte como proceder en vez de
+  mezclar contenido no relacionado en un repo publico academico sin
+  permiso. Elegiste subirlo igual, en una carpeta nueva "entrega 1".
+
+Autenticacion:
+- No hay gh CLI ni credential.helper configurado a nivel global, pero
+  Git Credential Manager de Windows ya tenia una sesion cacheada en esta
+  maquina → el push funciono sin que yo tuviera que pedirte ni manejar
+  ningun token o contrasena.
+
+Resultado: pusheado a main, carpeta "entrega 1/" con nutricion-agente/
+(corpus + 15 PDFs) y plan-comidas/ (HTML + md). El commit quedo firmado
+como "mgrafia <mgrafia@users.noreply.github.com>" porque no habia
+identidad de git configurada en la maquina — te lo avise por si
+preferis otro nombre.
+
+
+--- ETAPA 5: Ver todo desde el celular ---------------------------------
+
+Preguntaste como ver los artifacts y controlar la sesion desde el
+telefono. Consulte al agente especializado en Claude Code (para no
+inventar features que no existen) y la respuesta real fue:
+- Los artifacts de Claude Code (URLs "/code/artifact/...") y las rutinas
+  NO aparecen listados en ningun lado de la app movil (ni en
+  "Artefactos" ni en "Codigo → Dispositivos") — es una limitacion real
+  del producto hoy, no un error tuyo.
+- El link SI funciona abierto directo en el navegador del celular,
+  logueado con tu cuenta — pero no queda "guardado" en ningun listado de
+  la app, se pierde de la vista al cerrar la pestana.
+- Solucion practica: agregar el link a la pantalla de inicio del celular
+  (Safari: compartir → "Agregar a pantalla de inicio"; Chrome: menu →
+  "Anadir a pantalla principal"), asi queda como un icono fijo.
+
+
+========================================================================
+3) LINKS DE REFERENCIA
+========================================================================
+- Corpus Nutricional (artifact):
+  https://claude.ai/code/artifact/d359cedb-cf20-45c9-a075-f53aebc9de13
+- Semana de Batch Cooking (artifact):
+  https://claude.ai/code/artifact/3574bc68-cb1b-4fb2-bfbd-ad8bf37d1aac
+- Rutina programada (a revisar el 30/08 — ver hallazgo critico arriba):
+  https://claude.ai/code/routines/trig_01LjAdyAst9tu3DrtEPftTEe
+- Repositorio GitHub, carpeta de la entrega:
+  https://github.com/mgrafia/agentes-ia-ucema/tree/main/entrega%201
+
