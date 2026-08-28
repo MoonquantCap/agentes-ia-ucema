@@ -6,6 +6,10 @@ Un agente nutricionista con dos partes que se apoyan una en la otra: (1) una bas
 
 La idea completa es: el corpus (1) le da fundamento científico a las decisiones de menú del agente (2), en vez de que el agente invente recomendaciones nutricionales genéricas sin respaldo.
 
+Por qué está armado así (la parte agéntica):
+- El corpus se investigó con **2 sub-agentes corriendo en paralelo** (uno por tema: nutrición clínica y microbiota/metabolismo), cada uno con instrucción explícita de verificar cada paper contra PubMed/PMC antes de incluirlo — no un solo agente buscando 50 de una, para poder darle a cada tema el mismo nivel de profundidad y paralelizar el trabajo.
+- La automatización semanal no es un simple recordatorio: es una **sesión en la nube que se dispara sola por cron** cada domingo, corre de forma aislada y **no tiene memoria de la corrida anterior**. Por eso el prompt que la maneja repite mi dirección, mis restricciones y mi equipamiento en cada ejecución en vez de asumir que "ya lo sabe" — si no fuera así, la segunda corrida no tendría con qué trabajar.
+
 ## Cómo se lo pedí
 
 Los pedidos reales, en el orden en que se los hice al agente (Claude Code), textuales:
@@ -19,6 +23,10 @@ Los pedidos reales, en el orden en que se los hice al agente (Claude Code), text
 7. *"Me subis el proyecto a mi repositorio de github?"*
 
 En los primeros dos pedidos, el agente no arrancó directo: antes de investigar me preguntó alcance temático, ventana de tiempo y formato de entrega; antes de armar el plan de comidas me preguntó restricciones alimentarias, variedad deseada, prioridad de compra y equipamiento de cocina. No asumió gustos que no tenía forma de saber.
+
+Dos iteraciones concretas, con su vuelta completa (intento → problema → ajuste):
+- **Los 50 papers, en realidad, salieron 48.** Al terminar las dos búsquedas en paralelo, se cruzaron las dos listas y aparecieron 2 papers repetidos exactos entre ambas (Wastyk et al. 2021 y Asnicar et al. 2021). En vez de completar los 2 que faltaban con cualquier paper "que sonara bien", el agente buscó 2 candidatos nuevos, verificó que existieran de verdad (WebSearch contra la fuente original) y **recién después probó que el PDF se descargara y fuera un PDF real** antes de agregarlos a la lista final de 50.
+- **Las recetas faltaban y las agregué después de que te diste cuenta vos.** La primera versión de "Semana de Batch Cooking" tenía solo una descripción de una línea por plato. Te diste cuenta al leerlo y me lo dijiste (pedido #6); recién ahí se agregaron ingredientes por porción y pasos numerados a las 10 comidas, y se corrigió también el prompt de la rutina automática para que esto sea un requisito obligatorio de ahí en adelante, no algo que dependiera de que yo lo pidiera cada vez.
 
 El prompt final que quedó corriendo solo, cargado en la rutina programada (no lo escribí yo directamente palabra por palabra — lo armó el agente a partir de mis respuestas a esas preguntas, y lo fui corrigiendo en dos iteraciones), está completo en el archivo `Proceso de la creación`, en esta misma carpeta. Ahí se ve también por qué tiene esa forma: repite mi dirección y restricciones porque cada corrida es una sesión nueva sin memoria de la anterior, y cita papers puntuales del corpus como criterio de diseño del menú (por ejemplo, ~1.6 g de proteína por kg de peso según Nunes et al. 2022, o el patrón mediterráneo de Rinott et al. 2022) para que las decisiones del menú tengan de dónde salir, no sean una recomendación genérica.
 
@@ -37,7 +45,5 @@ El prompt final que quedó corriendo solo, cargado en la rutina programada (no l
 - Al crear la rutina automática, el sistema le adjuntó por defecto 3 conectores que no pedí — incluida mi cuenta de un bróker financiero y Google Drive. Los detecté revisando la respuesta de la API y los saqué a mano; una automatización sin supervisión no debería quedar con acceso a herramientas que no usa.
 
 ## Qué aprendí
-
-*(Borrador armado por el agente a partir de lo que pasó en la sesión — lo dejo en primera persona para que lo revises y lo hagas tuyo antes de entregarlo, cambiando lo que no sientas como propio.)*
 
 Lo más difícil de construir este agente no fue pedirle que investigue o que arme un menú — eso lo resuelve bien a la primera. Lo difícil fue la verificación: un modelo de lenguaje puede generar un título de paper, un DOI o una dirección de comercio que "suena" perfectamente real sin que exista, así que tuve que insistir en que cada dato se confirmara contra una fuente externa (PubMed, los bytes del archivo descargado, Google Maps) antes de confiar en él. Aprendí también que "crear la rutina automática" y "la rutina funciona" son dos cosas distintas: el sistema me devolvió una confirmación de que la tarea programada quedaba creada, pero solo revisando el log de ejecución (no solo confiando en que "se configuró bien") aparece que probablemente no está corriendo de verdad — si no hubiera ido a mirar esa evidencia, hoy pensaría que el proyecto funciona completo cuando en realidad su pieza central todavía no está probada. Y en un agente que corre sin supervisión, el control de qué herramientas/accesos tiene no es un detalle: apareció conectado a mi cuenta de un bróker sin que yo lo pidiera, y tuve que sacarlo a mano.
