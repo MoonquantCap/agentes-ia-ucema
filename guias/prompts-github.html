@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizarrón de prompts GitHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+  :root{
+    --bg:#101014;
+    --panel:#17171b;
+    --panel2:#1e1e24;
+    --line:#2c2c33;
+    --line2:#3a3a43;
+    --ink:#ffffff;
+    --ink2:#c3c2b7;
+    --ink3:#85847a;
+    --accent:#9d2235;
+    --accent2:#c94b5e;
+    --signal:#7ee2a8;
+    --radius:10px;
+    --sans:"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0}
+
+  body{
+    background:var(--bg);
+    color:var(--ink2);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:var(--accent2); text-decoration:none; border-bottom:1px solid rgba(201,75,94,.35)}
+  a:hover{border-bottom-color:var(--accent2)}
+  :focus-visible{outline:2px solid var(--signal); outline-offset:3px; border-radius:4px}
+
+  /* ---------- masthead ---------- */
+  .mast{
+    border-bottom:1px solid var(--line);
+    background:var(--panel);
+    padding:26px 34px 24px;
+  }
+  .mast-in{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:20px 40px; align-items:flex-end; justify-content:space-between}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; font-weight:500;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--ink3);
+  }
+  .mast h1{
+    font-size:clamp(26px,3.4vw,36px); font-weight:700; letter-spacing:-.02em;
+    color:var(--ink); margin-top:8px; text-wrap:balance;
+  }
+  .mast p{max-width:60ch; margin-top:10px; font-size:15.5px; color:var(--ink2)}
+  .mast .repo{
+    font-family:var(--mono); font-size:12.5px; color:var(--ink3);
+    border:1px solid var(--line2); border-radius:999px; padding:7px 14px; white-space:nowrap;
+  }
+  .mast .repo b{color:var(--ink2); font-weight:500}
+
+  /* ---------- shell ---------- */
+  .shell{
+    max-width:1180px; margin:0 auto; padding:34px;
+    display:grid; grid-template-columns:216px minmax(0,1fr); gap:44px; align-items:start;
+  }
+
+  /* ---------- index rail ---------- */
+  nav{position:sticky; top:26px}
+  nav h2{
+    font-family:var(--mono); font-size:11px; font-weight:500;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--ink3);
+    padding-bottom:12px; border-bottom:1px solid var(--line);
+  }
+  nav ol{list-style:none; display:flex; flex-direction:column; gap:2px; margin-top:12px}
+  nav a{
+    display:block; padding:7px 0; font-size:14px; color:var(--ink2);
+    border-bottom:none; line-height:1.35;
+  }
+  nav a:hover{color:var(--ink)}
+  nav .who{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin-top:2px}
+  nav .rule{height:1px; background:var(--line); margin:10px 0}
+
+  /* ---------- groups ---------- */
+  main{display:flex; flex-direction:column; gap:52px; min-width:0}
+  .group{display:flex; flex-direction:column; gap:18px}
+  .group-head{display:flex; flex-direction:column; gap:6px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+  .group-head .tag{
+    font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--accent2);
+  }
+  .group-head h3{font-size:23px; font-weight:600; color:var(--ink); letter-spacing:-.015em}
+  .group-head p{font-size:15px; color:var(--ink3); max-width:64ch}
+
+  /* ---------- cards ---------- */
+  .card{
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); overflow:hidden;
+  }
+  .card-head{
+    display:flex; gap:16px; align-items:flex-start; justify-content:space-between;
+    padding:18px 20px 14px;
+  }
+  .card-head .txt{min-width:0}
+  .card-head h4{
+    font-size:17px; font-weight:600; color:var(--ink); letter-spacing:-.01em;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  .seq{
+    font-family:var(--mono); font-size:11px; font-weight:600; color:#ffffff;
+    background:var(--accent); border-radius:4px; padding:2px 7px; letter-spacing:.05em;
+    flex:none;
+  }
+  .when{
+    font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--ink3); border:1px solid var(--line2);
+    border-radius:4px; padding:2px 7px; flex:none;
+  }
+  .card-head p{font-size:14.5px; color:var(--ink3); margin-top:5px; max-width:62ch}
+
+  button.copy{
+    flex:none; cursor:pointer; font-family:var(--mono); font-size:11.5px; font-weight:500;
+    letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink2); background:var(--panel2); border:1px solid var(--line2);
+    border-radius:6px; padding:8px 14px;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  button.copy:hover{color:var(--ink); border-color:var(--ink3)}
+  button.copy.done{color:var(--signal); border-color:var(--signal); background:rgba(126,226,168,.08)}
+
+  pre{
+    margin:0; padding:18px 20px 20px;
+    background:var(--panel2); border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:13px; line-height:1.72; color:var(--ink2);
+    white-space:pre-wrap; word-break:break-word; overflow-x:auto;
+  }
+  pre .ph{color:var(--accent2); background:rgba(157,34,53,.16); border-radius:3px; padding:0 3px}
+
+  /* ---------- footnote ---------- */
+  .note{
+    border-left:3px solid var(--accent); background:var(--panel);
+    border-radius:0 var(--radius) var(--radius) 0; padding:18px 22px;
+    font-size:15px; color:var(--ink2); max-width:70ch;
+  }
+  .note strong{color:var(--ink); font-weight:600}
+
+  footer{
+    border-top:1px solid var(--line); margin-top:16px; padding:24px 34px 46px;
+  }
+  footer div{max-width:1180px; margin:0 auto; font-family:var(--mono); font-size:12px; color:var(--ink3); letter-spacing:.04em}
+
+  @media (max-width:880px){
+    .shell{grid-template-columns:1fr; gap:30px; padding:26px 20px}
+    nav{position:static}
+    nav ol{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:4px 20px}
+    .mast{padding:22px 20px}
+    .card-head{flex-direction:column; gap:12px}
+    button.copy{align-self:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important; animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <div>
+      <div class="eyebrow">MADE · UCEMA · Creación de Agentes de IA</div>
+      <h1>Pizarrón de prompts</h1>
+      <p>Todo lo que hay que pegarle a un agente para trabajar sobre el repo del curso: ramas, commits y pull requests. Copiar, pegar, editar lo que está <span style="color:var(--accent2)">resaltado</span>.</p>
+    </div>
+    <div class="repo">repo &nbsp;<b>MoonquantCap/agentes-ia-ucema</b></div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav>
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#g1">Preparar el repo<span class="who">Profesor · antes</span></a></li>
+      <li><a href="#g2">Las dos demos<span class="who">Profesor · en vivo</span></a></li>
+      <li><a href="#g3">Subir la ficha<span class="who">Alumnos</span></a></li>
+      <li><a href="#g4">Cuando algo falla<span class="who">Alumnos</span></a></li>
+      <div class="rule"></div>
+      <li><a href="#g5">Corregir las entregas<span class="who">Profesor · después</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- ============ G1 ============ -->
+    <section class="group" id="g1">
+      <div class="group-head">
+        <span class="tag">Profesor · antes de la clase</span>
+        <h3>Preparar el repo</h3>
+        <p>Dos prompts que dejan el repositorio listo para que cincuenta personas abran pull requests sin romper nada. En orden.</p>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">1</span> Armar la carpeta y los permisos</h4>
+            <p>Crea <code style="font-family:var(--mono);font-size:13px">fichas/</code>, escribe el instructivo del README y te dice qué configurar para que nadie pueda mergear a main.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Trabajás sobre el repositorio MoonquantCap/agentes-ia-ucema, rama main.
+Prepará el repo para un ejercicio con 50 alumnos que nunca usaron GitHub:
+
+1. Creá la carpeta fichas/ con un archivo fichas/_plantilla.md con tres campos:
+   Nombre y apellido · A qué me dedico · Qué proceso de mi trabajo le
+   delegaría a un agente.
+
+2. Agregá al README una sección «Cómo subir tu ficha» en 5 pasos, escrita
+   para alguien que trabaja 100% desde el navegador y nunca abrió una terminal.
+
+3. Decime qué configuración de permisos necesito para que 50 personas puedan
+   abrir pull requests SIN poder mergear a main, y cómo se activa.
+
+Trabajá en una rama setup/fichas y abrime el pull request. No mergees vos.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">2</span> Ensayar la demo</h4>
+            <p>Corre la demo completa en seco y te devuelve las tres formas en que puede romperse en vivo, con su salida de emergencia.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Vamos a ensayar la demo que doy en clase. Actuá exactamente como lo harías
+en vivo, pero antes de cada acción decime en una línea qué vas a hacer y
+esperá que te diga «dale».
+
+El objetivo: agregar una ficha al repo MoonquantCap/agentes-ia-ucema en una
+rama nueva y abrir el pull request contra main.
+
+Al terminar, decime qué tres cosas podrían salir mal delante de 50 personas
+y cómo se resuelve cada una en menos de 30 segundos.</pre>
+      </article>
+    </section>
+
+    <!-- ============ G2 ============ -->
+    <section class="group" id="g2">
+      <div class="group-head">
+        <span class="tag">Profesor · pantalla compartida</span>
+        <h3>Las dos demos</h3>
+        <p>Escenas 6 y 8 del deck. El primero lo pegás cuando salís del deck; el segundo, con el pull request ya abierto en pantalla.</p>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">3</span> El agente abre la rama y el PR</h4>
+            <p>La instrucción «antes de cada paso decime qué vas a hacer» es lo que hace la demo narrable: te deja ir nombrando rama, commit y PR mientras ocurren.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Agregá mi ficha al repositorio MoonquantCap/agentes-ia-ucema.
+
+Archivo: fichas/roisenzvit-alfredo.md
+Contenido: quién soy (profesor de esta materia) y qué proceso propio le
+delegaría a un agente.
+
+Trabajá en una rama nueva llamada ficha/roisenzvit y abrí un pull request
+contra main. En la descripción del PR explicá en dos líneas qué cambiaste
+y por qué.
+
+Antes de cada paso decime qué vas a hacer, en una línea.
+No mergees: quiero revisarlo yo.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">4</span> El diff, explicado</h4>
+            <p>Para la escena «el diff es la rúbrica»: le pedís que ordene los riesgos por costo, no por orden de aparición.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Mostrame el diff del pull request que acabás de abrir, archivo por archivo,
+y explicame en lenguaje simple qué cambia exactamente.
+
+Después listame las tres cosas que un revisor debería chequear antes de
+aprobarlo, ordenadas por lo que más caro saldría dejar pasar.
+
+No lo apruebes ni lo mergees.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="when">Si se rompe</span> Rescate en vivo</h4>
+            <p>Pegale el error tal cual delante de todos. Que la demo se rompa y se arregle así es mejor clase que la demo saliendo bien.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Algo falló. Este es el mensaje textual:
+
+<span class="ph">&lt;PEGAR ACÁ EL ERROR&gt;</span>
+
+Decime tres cosas y nada más:
+1. qué pasó, en una frase sin tecnicismos
+2. el paso siguiente, uno solo
+3. cómo verifico que quedó bien
+
+No hagas nada todavía: esperá mi confirmación.</pre>
+      </article>
+    </section>
+
+    <!-- ============ G3 ============ -->
+    <section class="group" id="g3">
+      <div class="group-head">
+        <span class="tag">Alumnos</span>
+        <h3>Subir la ficha</h3>
+        <p>Los tres prompts de la consigna, en orden. Todo desde el navegador: no hace falta instalar nada ni abrir una terminal.</p>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">1</span> El prompt de arranque</h4>
+            <p>El más importante de la página. Le pone al agente las tres condiciones que evitan el 90% de los cuelgues: principiante, navegador, un paso por vez.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Soy principiante total en GitHub. Trabajo 100% desde el navegador: no tengo
+terminal, no quiero instalar nada, ya tengo cuenta de GitHub y estoy logueado.
+
+Necesito hacer esto en el repositorio MoonquantCap/agentes-ia-ucema:
+- crear una rama llamada ficha/<span class="ph">MI-APELLIDO</span>
+- crear el archivo fichas/<span class="ph">mi-apellido-nombre</span>.md con mi ficha
+- abrir un pull request contra la rama main
+
+Guiame paso a paso, UN PASO POR VEZ, y esperá que te confirme antes de darme
+el siguiente. En cada paso decime exactamente dónde hago clic y qué debería
+ver en pantalla después.
+
+Si lo que veo no coincide con lo que describís, te pego el texto tal cual
+y seguimos desde ahí.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">2</span> Escribir la ficha</h4>
+            <p>Para el que se traba en «no sé qué poner». Pregunta primero, escribe después.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Ayudame a escribir mi ficha para el repo del curso. Son tres cosas: quién soy,
+a qué me dedico, y qué proceso de mi trabajo le delegaría a un agente.
+
+Primero hacéme 4 preguntas cortas sobre mi trabajo, de a UNA por vez.
+
+Con mis respuestas, escribí la ficha en markdown: máximo 10 líneas, en primera
+persona, sin adjetivos de más y sin vender nada.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">3</span> La descripción del pull request</h4>
+            <p>Esto es lo que se corrige. La descripción tiene que contar el reparto entre el agente y ustedes.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Escribime la descripción de mi pull request. Tiene que contar dos cosas:
+
+1. qué cambié: qué archivo agregué y para qué
+2. el reparto: qué le pedí al agente y qué decidí o corregí yo
+
+Máximo 5 líneas, en tono de registro. No es un mail de venta.</pre>
+      </article>
+    </section>
+
+    <!-- ============ G4 ============ -->
+    <section class="group" id="g4">
+      <div class="group-head">
+        <span class="tag">Alumnos · a demanda</span>
+        <h3>Cuando algo falla</h3>
+        <p>No están en orden: se usan cuando hacen falta. Los dos empiezan igual — pegar el texto tal cual, sin resumirlo ni interpretarlo.</p>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="when">A demanda</span> Desatascador universal</h4>
+            <p>Sirve para cualquier pantalla trabada. La clave es la última línea: pedir cómo se deshace antes de seguir adelante.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Estoy trabajando en GitHub desde el navegador y no me sale.
+
+Lo que quería lograr: <span class="ph">&lt;QUÉ QUERÍA HACER&gt;</span>
+Lo que veo, textual: <span class="ph">&lt;PEGAR EL MENSAJE O DESCRIBIR LA PANTALLA&gt;</span>
+
+Decime en qué estado quedó todo ahora, y el paso siguiente, UNO SOLO.
+Si me equivoqué en algo, decime primero cómo se deshace.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="when">A demanda</span> Resolver un conflicto</h4>
+            <p>Cuando aparecen los <code style="font-family:var(--mono);font-size:13px">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> dentro del archivo. El agente resuelve la mecánica; la decisión de cuál versión queda es tuya.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Me apareció esto dentro del archivo:
+
+<span class="ph">&lt;PEGAR EL BLOQUE CON &lt;&lt;&lt;&lt;&lt;&lt;&lt; ======= &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span>
+
+Explicame en criollo: qué dos versiones están compitiendo, cuál es la
+diferencia real entre ellas, y qué tengo que borrar exactamente para quedarme
+con <span class="ph">&lt;LA QUE QUIERO&gt;</span>.
+
+Decime también qué pasa si me equivoco y cómo lo revierto.</pre>
+      </article>
+    </section>
+
+    <!-- ============ G5 ============ -->
+    <section class="group" id="g5">
+      <div class="group-head">
+        <span class="tag">Profesor · después de la clase</span>
+        <h3>Corregir las entregas</h3>
+        <p>Cincuenta pull requests no se revisan a mano. El primero audita, el segundo integra — y ninguno de los dos decide solo.</p>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">1</span> Auditar los pull requests abiertos</h4>
+            <p>Devuelve tabla ordenada por apellido más la lista de los que no cumplen, con qué les falta a cada uno.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>Listá todos los pull requests abiertos contra main en el repositorio
+MoonquantCap/agentes-ia-ucema.
+
+Para cada uno devolveme: autor · rama · archivo agregado · y si cumple los
+tres requisitos:
+  (a) el archivo está dentro de fichas/
+  (b) la rama no es main
+  (c) la descripción explica el reparto agente/humano
+
+Formato: tabla markdown ordenada por apellido, y al final una lista aparte de
+los que NO cumplen, con qué le falta a cada uno. No mergees nada.</pre>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="txt">
+            <h4><span class="seq">2</span> Mergear en tanda</h4>
+            <p>Integra solo lo que pasó la auditoría, te muestra la lista antes de tocar nada, y se detiene ante el primer conflicto en lugar de decidir por vos.</p>
+          </div>
+          <button class="copy" type="button">Copiar</button>
+        </div>
+        <pre>De la lista anterior, mergeá SOLO los pull requests que cumplen los tres
+requisitos, uno por uno, borrando la rama después de cada merge.
+
+Antes de empezar mostrame la lista de los que vas a mergear y esperá mi OK.
+Si alguno da conflicto, pará, avisame cuál es y seguí con el resto.</pre>
+      </article>
+
+      <div class="note">
+        <strong>Regla de la casa.</strong> Ninguno de estos prompts es definitivo. Si algo no sale, la pregunta nunca es si la herramienta da para esto — es qué le falta al pedido: qué contexto, qué permiso, qué criterio de aceptación. Editarlos es parte del ejercicio.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div>Creación de Agentes de IA · MADE · UCEMA · 2026 2T</div>
+</footer>
+
+<script>
+  document.querySelectorAll("button.copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".card").querySelector("pre");
+      var text = pre.textContent;
+
+      function ok() {
+        btn.textContent = "Copiado ✓";
+        btn.classList.add("done");
+        clearTimeout(btn._t);
+        btn._t = setTimeout(function () {
+          btn.textContent = "Copiar";
+          btn.classList.remove("done");
+        }, 1800);
+      }
+
+      function fallback() {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-1000px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); ok(); }
+        catch (e) { btn.textContent = "Seleccioná y copiá"; }
+        document.body.removeChild(ta);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok, fallback);
+      } else {
+        fallback();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
