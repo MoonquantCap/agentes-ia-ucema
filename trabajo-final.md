@@ -2,7 +2,7 @@
 
 **Programación de y con Agentes de IA** · MBA UCEMA · 2026 2T · Prof. Alfredo B. Roisenzvit
 
-**Individual · Se entrega: jueves 10/9, 18:59 · Corrección: en vivo esa misma noche, por los agentes evaluadores construidos en el parcial**
+**Individual · Se entrega: domingo 13/9, 23:59 · Corrección: por los agentes evaluadores del parcial, con asignación cruzada**
 
 ---
 
@@ -10,7 +10,7 @@
 
 El trabajo final es un **sistema agéntico completo aplicado a un caso real** de tu trabajo, tu negocio o tu interés — la versión seria de lo que empezaste en la Entrega 1. No es un chatbot ni un prompt suelto: es un agente con objetivo, contrato, herramientas y supervisión definida, que corre de verdad sobre datos reales.
 
-**Quién lo corrige:** el agente evaluador de **otro grupo** — nunca el del propio. La asignación cruzada se sortea en la última clase, y la corrección ocurre en vivo. Tu nota depende, en parte, de qué tan bien otro equipo definió «bien hecho»; la de ellos, de que su evaluador esté a la altura de tu trabajo. Los desacuerdos los arbitra el profesor.
+**Quién lo corrige:** el agente evaluador de **otro grupo** — nunca el del propio. La asignación cruzada se sortea en la última clase (jueves 10/9), donde además cada evaluador muestra en vivo cómo corrige. Tu proyecto se corrige después del cierre, y los resultados se publican en el campus. Tu nota depende, en parte, de qué tan bien otro equipo definió «bien hecho»; la de ellos, de que su evaluador esté a la altura de tu trabajo. Los desacuerdos los arbitra el profesor.
 
 ## Los seis requisitos
 
@@ -49,8 +49,8 @@ Como en toda la materia: **un sistema honesto con una falla bien contada vale m�
 
 ## Escala y consejos
 
-La escala correcta es «el mejor proyecto que se puede construir en dos semanas de atención parcial»: más ambicioso que la Entrega 1, más chico que un producto. Elegí un caso que te importe — los mejores trabajos de la Entrega 1 fueron los que resolvían un problema propio. Si no se te ocurre el caso, ya sabés: pedile ideas al agente (el prompt está en el campus). Y arrancá esta semana: las tres corridas reales y la calibración de tu documentación llevan más tiempo del que parece.
+La escala correcta es «el mejor proyecto que se puede construir en dos semanas y media de atención parcial»: más ambicioso que la Entrega 1, más chico que un producto. Elegí un caso que te importe — los mejores trabajos de la Entrega 1 fueron los que resolvían un problema propio. Si no se te ocurre el caso, ya sabés: pedile ideas al agente (el prompt está en el campus). Y arrancá esta semana: las tres corridas reales y la calibración de tu documentación llevan más tiempo del que parece.
 
 ## Entrega
 
-Subí el **link a tu repositorio público** en la actividad *Trabajo final* del campus, antes del **jueves 10 de septiembre, 18:59** — la clase de esa noche abre con los evaluadores corrigiendo. Sin excepciones de formato: el agente que te corrige no improvisa.
+Subí el **link a tu repositorio público** en la actividad *Trabajo final* del campus, antes del **domingo 13 de septiembre, 23:59**. La última clase (jueves 10/9) te sirve de checkpoint: llevá tu avance, que los evaluadores ya van a estar corrigiendo en vivo casos de prueba. Sin excepciones de formato: el agente que te corrige no improvisa.

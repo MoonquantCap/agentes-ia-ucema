@@ -2,13 +2,13 @@
 
 **Programación de y con Agentes de IA** · MBA UCEMA · 2026 2T · Prof. Alfredo B. Roisenzvit
 
-**Grupal (hasta 6 integrantes) · Abre: jueves 27/8, 22:00 · Cierra: miércoles 9/9, 18:59 · Prueba de fuego: en vivo, en la última clase**
+**Grupal (hasta 6 integrantes) · Abre: jueves 27/8, 22:00 · Cierra: jueves 10/9, 18:59 — antes de la última clase · Prueba de fuego: en vivo, esa misma noche**
 
 ---
 
 ## Qué es
 
-El parcial de la materia es construir un **agente evaluador**: el sistema que va a corregir, en vivo y frente a todos, los trabajos finales de sus compañeros.
+El parcial de la materia es construir un **agente evaluador**: el sistema que va a corregir los trabajos finales de sus compañeros — con una prueba de fuego en vivo, frente a todos, en la última clase.
 
 La lógica la vieron en clase: la rúbrica con la que se corrigen sus entregas es un prompt — una especificación ejecutable. Ahora la escriben ustedes. Evaluar bien es definir «bien hecho» con tanta precisión que hasta una máquina puede aplicarlo; el parcial es demostrar esa competencia.
 
@@ -48,7 +48,7 @@ La **historia de commits** debe mostrar el trabajo real del grupo: quién aport�
 | Calibración documentada: desacuerdos encontrados, ajustes hechos, resultado | 15 |
 | Proceso grupal: historia de commits, iteraciones de la rúbrica, decisiones registradas | 15 |
 
-**La prueba de fuego es pública:** en la última clase, cada agente evaluador corrige en vivo trabajos finales que nunca vio. Un evaluador que se desploma frente a un caso real dice algo sobre su construcción — y la clase entera lo va a ver. Construyan para ese momento.
+**La prueba de fuego es pública:** en la última clase, cada agente evaluador corrige en vivo casos que nunca vio. Después del cierre del trabajo final (domingo 13/9), su evaluador corrige de verdad los proyectos de otro grupo. Un evaluador que se desploma frente a un caso real dice algo sobre su construcción — y la clase entera lo va a ver. Construyan para ese momento.
 
 ## Reglas de la casa, aplicadas
 
@@ -56,4 +56,4 @@ Nadie del grupo escribe código: se construye describiendo, iterando y documenta
 
 ## Entrega
 
-Un integrante sube el **link al repositorio del grupo** en la actividad *Parcial* del campus, antes del **miércoles 9 de septiembre, 18:59**. El Foro de grupos del campus está abierto para armar equipos y coordinar.
+Un integrante sube el **link al repositorio del grupo** en la actividad *Parcial* del campus, antes del **jueves 10 de septiembre, 18:59** — la clase de esa noche abre con los evaluadores en cancha. El Foro de grupos del campus está abierto para armar equipos y coordinar.
