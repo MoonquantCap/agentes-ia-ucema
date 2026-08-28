@@ -21,7 +21,24 @@ deck/     el agente de presentación de cada clase — un archivo HTML:
           abrilo en el navegador y avanzá con la barra espaciadora
 assets/   videos y capturas del material
 hilos/    los hilos publicados de la serie, con fecha y link
+fichas/   las fichas de presentación de los estudiantes
 ```
+
+## Cómo subir tu ficha
+
+Tu primera entrega es tu ficha de presentación, y se sube con el mismo mecanismo que usan los equipos de software de todo el mundo: un *pull request*. Todo se hace desde el navegador, sin instalar nada. Necesitás una cuenta de GitHub (se crea gratis en [github.com/signup](https://github.com/signup)) y haber iniciado sesión.
+
+1. **Abrí la plantilla.** Entrá a la carpeta [`fichas/`](fichas/) de este repositorio y hacé clic en el archivo `_plantilla.md`. Ese es el modelo de tu ficha: leelo para ver los tres campos que vas a completar.
+
+2. **Creá tu archivo.** Volvé a la carpeta [`fichas/`](fichas/) y arriba a la derecha buscá el botón **Add file** → **Create new file**. En el casillero del nombre escribí tu nombre en minúsculas y con guiones, terminado en `.md` — por ejemplo: `ana-garcia.md`.
+
+3. **Completá tu ficha.** En el cuadro grande de texto, copiá los tres títulos de la plantilla y escribí tu respuesta debajo de cada uno: **Nombre y apellido**, **A qué me dedico**, y **Qué proceso de mi trabajo le delegaría a un agente**.
+
+4. **Proponé el cambio.** Hacé clic en el botón verde **Commit changes...**. GitHub te va a avisar que no podés escribir directamente en este repositorio y te va a proponer crear una copia (*fork*) con tu cambio en una rama nueva: aceptá lo que te propone tal como viene y confirmá con **Propose changes**.
+
+5. **Abrí tu pull request.** En la pantalla siguiente, hacé clic en el botón verde **Create pull request** (dos veces, si te lo vuelve a pedir). Listo: tu ficha quedó propuesta. No podés romper nada — un pull request es exactamente eso, una propuesta que el profesor revisa y aprueba. Cuando se apruebe, tu ficha va a aparecer en la carpeta `fichas/` junto a las de tus compañeros.
+
+Si algo salió distinto de lo que esperabas, la regla de la materia aplica acá también: pedile a tu IA de confianza que te guíe — contale en qué pantalla estás y qué querés lograr.
 
 ## El agente de presentación
 

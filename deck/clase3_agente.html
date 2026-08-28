@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 — Creación de Agentes de IA · UCEMA MADE</title>
+<style>
+  :root{
+    --bg:#101014; --panel:#1a1a19; --panel2:#212127;
+    --ink:#ffffff; --ink2:#c3c2b7; --ink3:#8b8a80;
+    --accent:#9d2235; --accent2:#c94b5e;
+    --mono:#7ee2a8;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+    #topbar{position:fixed; top:0; left:0; right:0; height:44px; display:flex;
+    align-items:center; gap:14px; padding:0 18px; z-index:50;
+    background:linear-gradient(180deg,rgba(16,16,20,.96),rgba(16,16,20,.7));
+    font-size:13px; color:var(--ink3)}
+  #topbar .dot{width:9px;height:9px;border-radius:50%;background:var(--mono);
+    box-shadow:0 0 8px var(--mono); animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  #topbar .sep{opacity:.35}
+  #topbar .brand{color:var(--accent2); font-weight:600; letter-spacing:.4px}
+  #counter{margin-left:auto}
+
+  #rail{position:fixed; right:0; top:44px; bottom:40px; width:230px; z-index:40;
+    padding:16px 14px; overflow-y:auto; font-size:12px; color:var(--ink3);
+    border-left:1px solid #26262c; background:rgba(16,16,20,.55);
+    transition:transform .3s}
+  #rail.hidden{transform:translateX(240px)}
+  #rail h4{font-size:11px; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--ink3); margin-bottom:10px}
+  #rail .item{display:flex; gap:8px; padding:5px 4px; border-radius:6px;
+    align-items:baseline; cursor:pointer; line-height:1.25}
+  #rail .item:hover{background:#212127}
+  #rail .item .mark{width:14px; flex:none; color:var(--ink3)}
+  #rail .item.done .mark{color:var(--s3)}
+  #rail .item.now{color:var(--ink)}
+  #rail .item.now .mark{color:var(--mono)}
+
+  #stage{position:absolute; inset:44px 230px 40px 0; display:flex;
+    align-items:center; justify-content:center; padding:28px 40px;
+    transition:inset .3s}
+  #stage.wide{inset:44px 0 40px 0}
+  #scene{width:min(1060px,100%); max-height:100%; overflow-y:auto;
+    scrollbar-width:none}
+  #scene::-webkit-scrollbar{display:none}
+
+  #hints{position:fixed; bottom:0; left:0; right:0; height:40px; display:flex;
+    align-items:center; gap:18px; padding:0 18px; font-size:12px;
+    color:var(--ink3); z-index:50}
+  #hints kbd{background:#26262c; border-radius:4px; padding:1px 7px;
+    font-family:inherit; font-size:11px; color:var(--ink2)}
+  #progress{position:fixed; bottom:40px; left:0; height:2px;
+    background:var(--accent2); width:0%; z-index:60; transition:width .35s}
+
+    .step{opacity:0; transform:translateY(10px);
+    transition:opacity .45s,transform .45s}
+  .step.on{opacity:1; transform:none}
+  .prompt{display:inline-flex; align-items:center; gap:10px; margin-bottom:22px;
+    background:var(--panel2); border:1px solid #33333b; border-radius:999px;
+    padding:8px 18px; font-size:15px; color:var(--ink2)}
+  .prompt::before{content:"▸"; color:var(--accent2); font-weight:700}
+  .agentline{display:flex; gap:10px; font-size:13px; color:var(--ink3);
+    margin:4px 0}
+  .agentline .who{color:var(--mono)}
+  h1.big{font-size:56px; line-height:1.08; letter-spacing:-1px; margin:10px 0 14px}
+  h2.sc{font-size:38px; line-height:1.12; letter-spacing:-.5px; margin:4px 0 18px}
+  .sub{font-size:20px; color:var(--ink2); line-height:1.45}
+  .body-txt{font-size:21px; color:var(--ink2); line-height:1.55; margin:10px 0;
+    max-width:56ch}
+  .body-txt strong{color:var(--ink)}
+  .cursor{display:inline-block; width:.55em; height:1.05em; background:var(--mono);
+    vertical-align:text-bottom; animation:pulse 1s infinite; margin-left:2px}
+
+  .tool{display:flex; align-items:center; gap:12px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:10px; padding:10px 16px;
+    margin:10px 0; font-size:15px; width:fit-content; max-width:100%}
+  .tool .tname{color:var(--mono)}
+  .tool .spin{width:14px; height:14px; border:2px solid #3a3a42;
+    border-top-color:var(--mono); border-radius:50%;
+    animation:rot .8s linear infinite; flex:none}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .tool.ok .spin{border:none; animation:none; width:auto; height:auto}
+  .tool.ok .spin::before{content:"✓"; color:var(--s3); font-weight:700}
+  .tool .res{color:var(--ink3)}
+
+  .cardrow{display:flex; gap:18px; margin:18px 0; flex-wrap:wrap}
+  .card{flex:1; min-width:240px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:var(--radius); padding:22px}
+  .card h3{font-size:17px; margin-bottom:10px; color:var(--ink)}
+  .card p,.card li{font-size:15.5px; color:var(--ink2); line-height:1.5}
+  .card ul{padding-left:18px; margin-top:6px}
+  .card.hl{border-color:var(--accent); box-shadow:0 0 24px rgba(157,34,53,.25)}
+  .tag{display:inline-block; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; padding:3px 10px; border-radius:999px;
+    background:#26262c; color:var(--ink3); margin-bottom:10px}
+
+  .bigquote{font-size:30px; line-height:1.4; max-width:34ch; color:var(--ink);
+    border-left:4px solid var(--accent); padding-left:26px; margin:22px 0}
+  .bigquote .by{display:block; font-size:16px; color:var(--ink3); margin-top:14px}
+
+  .handoff{display:flex; flex-direction:column; align-items:center; gap:18px;
+    text-align:center; padding:40px 0}
+  .handoff .live{font-size:13px; letter-spacing:3px; color:#fff;
+    background:var(--accent); border-radius:999px; padding:7px 20px;
+    animation:pulse 1.6s infinite}
+  .handoff h2{font-size:52px; letter-spacing:-1px}
+
+  table.simple{border-collapse:collapse; margin:14px 0; width:100%}
+  table.simple th{font-size:13px; text-transform:uppercase; letter-spacing:.8px;
+    color:var(--ink3); text-align:left; padding:8px 14px 8px 0;
+    border-bottom:1px solid #2c2c33}
+  table.simple td{font-size:16px; color:var(--ink2); padding:9px 14px 9px 0;
+    border-bottom:1px solid #222228; line-height:1.4}
+  table.simple td:first-child{color:var(--ink); white-space:nowrap}
+
+  /* viz panels (dataviz tokens) */
+  .viz{background:var(--panel); border:1px solid #2c2c33;
+    border-radius:var(--radius); padding:20px 22px; margin:16px 0}
+  .viz .vtitle{font-size:14px; color:var(--ink2); margin-bottom:12px}
+  .tokbar{display:flex; align-items:center; gap:12px; margin:7px 0}
+  .tokbar .tk{width:120px; font-size:16px; text-align:right; color:var(--ink)}
+  .tokbar .bar{height:22px; border-radius:0 4px 4px 0; background:var(--s1);
+    width:0; transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .tokbar .pct{font-size:13px; color:var(--ink3)}
+
+  #notes{position:fixed; inset:auto 0 0 0; background:rgba(12,12,15,.97);
+    border-top:2px solid var(--accent); padding:18px 26px 46px; z-index:80;
+    font-size:16px; line-height:1.5; color:var(--ink2); display:none;
+    max-height:45%; overflow-y:auto}
+  #notes.show{display:block}
+  #notes .nt{font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--accent2); margin-bottom:8px}
+
+  .levels{display:flex; gap:10px; margin:20px 0; flex-wrap:wrap}
+  .lv{flex:1; min-width:150px; background:var(--panel); border:1px solid #2c2c33;
+    border-radius:10px; padding:14px}
+  .lv .l{font-size:12px; color:var(--mono); margin-bottom:6px}
+  .lv b{display:block; font-size:15px; margin-bottom:6px; color:var(--ink)}
+  .lv p{font-size:13px; color:var(--ink3); line-height:1.4}
+  .lv.hl{border-color:var(--accent)}
+</style>
+</head>
+<body>
+  <div id="topbar" class="mono">
+    <span class="dot"></span>
+    <span>agente-docente</span><span class="sep">·</span>
+    <span class="brand">Creación de Agentes de IA</span><span class="sep">·</span>
+    <span>MADE · UCEMA · clase 3/6</span>
+    <span id="counter"></span>
+  </div>
+  <div id="rail"><h4>Plan de la clase</h4><div id="railitems"></div></div>
+  <div id="stage"><div id="scene"></div></div>
+  <div id="progress"></div>
+  <div id="hints">
+    <span><kbd>espacio</kbd>/<kbd>→</kbd> avanzar</span>
+    <span><kbd>←</kbd> volver</span>
+    <span><kbd>N</kbd> notas</span>
+    <span><kbd>R</kbd> panel</span>
+    <span><kbd>F</kbd> pantalla completa</span>
+  </div>
+  <div id="notes"><div class="nt">Notas del presentador</div><div id="notesbody"></div></div>
+
+<script>
+/* =========================================================
+   AgentDeck — presentación agéntica · Clase 3
+   Escenas declarativas; cada escena = pasos que se revelan.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+
+function el(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+
+/* ---- step builders ---------------------------------------------------- */
+const P  = html => ({kind:"fade", html:`<div class="step prompt">${html}</div>`});
+const A  = html => ({kind:"fade", html:`<div class="step agentline mono"><span class="who">agente ▸</span><span>${html}</span></div>`});
+const H1 = html => ({kind:"type", tagHtml:`<h1 class="big step"></h1>`, text:html});
+const H2 = html => ({kind:"type", tagHtml:`<h2 class="sc step"></h2>`, text:html});
+const T  = html => ({kind:"fade", html:`<p class="body-txt step">${html}</p>`});
+const RAW= html => ({kind:"fade", html:`<div class="step">${html}</div>`});
+const TOOL = (name,args,res,ms=1100) => ({kind:"tool", name, args, res, ms});
+
+/* ---- scenes ----------------------------------------------------------- */
+const SCENES = [
+
+{ id:"boot", rail:"Inicio", notes:"",
+  steps:[
+    A("iniciando sesión…"),
+    A("cargando contexto: <span style='color:var(--ink2)'>MADE · UCEMA · 2026 2T · clase 3 de 6</span>"),
+    TOOL("leer_entregas", "Entrega 2 · campus Moodle", "[N] contratos recibidos ✓", 1400),
+    TOOL("leer_foro", "Foro de consultas + Vitrina", "actividad de la semana cargada ✓", 1200),
+    A("objetivo de hoy: <span style='color:var(--ink2)'>que sus contratos llamen herramientas · que cada uno abra su primer pull request · presentar parcial y final</span>"),
+    H1("Creación de Agentes de IA"),
+    T("Clase 3 · APIs, conectores y desarrollo asistido · presentación del proyecto final<br><span style='color:var(--ink3)'>Alfredo B. Roisenzvit · 27 de agosto de 2026</span>"),
+  ]},
+
+{ id:"revision", rail:"Revisión · Entrega 2", notes:"",
+  steps:[
+    P("Antes de lo nuevo: ¿qué contratos escribieron?"),
+    H2("Revisión de la Entrega 2"),
+    A("abriendo contratos seleccionados… <span style='color:var(--ink2)'>[proyecto 1] · [proyecto 2] · [proyecto 3]</span>"),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>Lo que apareció</h3><p>[Completar tras corregir: qué tareas eligieron contratar — reportes, respuestas tipo, controles…]</p></div>
+      <div class="card"><h3>Lo que más costó</h3><p>[Completar: separar system de user · documentar el antes/después de cada iteración · outputs realmente comparables…]</p></div>
+    </div>`),
+    T("El patrón que importa para hoy: un contrato bien escrito es un empleado confiable — pero <strong>un empleado que todavía trabaja con las manos atadas</strong>: lee lo que le pegan y escribe lo que le piden. Hoy le damos manos."),
+  ]},
+
+{ id:"puente", rail:"De escribir a ejecutar", notes:"",
+  steps:[
+    P("Cerramos la clase pasada con una promesa: los contratos empiezan a llamar herramientas"),
+    H2("De escribir texto a operar sistemas"),
+    RAW(`<table class="simple step">
+      <tr><th></th><th>Contrato solo (Clase 2)</th><th>Contrato + herramientas (hoy)</th></tr>
+      <tr><td>Lee</td><td>Lo que le pegás en el prompt</td><td>Archivos, planillas, calendarios, sistemas</td></tr>
+      <tr><td>Produce</td><td>Texto que alguien copia y pega</td><td>Acciones: registros creados, mails enviados, datos actualizados</td></tr>
+      <tr><td>El humano</td><td>Es el mensajero entre sistemas</td><td>Supervisa el flujo completo</td></tr>
+    </table>`),
+    T("La pieza que faltaba tiene nombre: <strong>API</strong> — la puerta por la que dos programas se hablan. Cuando el contrato puede tocar APIs, el agente deja de necesitar que vos seas sus manos."),
+  ]},
+
+{ id:"api", rail:"¿Qué es una API?", notes:"",
+  steps:[
+    P("¿Y qué es exactamente una API?"),
+    H2("La puerta de servicio de todo sistema"),
+    T("Una <strong>API</strong> es la ventanilla formal de un sistema: un menú de pedidos posibles, con formato fijo de pregunta y de respuesta. No entrás a la cocina del banco, del clima o de tu ERP — <strong>pedís por ventanilla y te devuelven el plato</strong>, casi siempre en JSON, el formato que ya conocen."),
+    A("así se ve cuando el agente pide por ventanilla ▸"),
+    TOOL("api_bcra.cotizaciones", "GET /dolar/oficial", '{"compra": 1412.50, "venta": 1462.50, "fecha": "2026-08-27"} ✓', 1500),
+    TOOL("api_calendario.crear_evento", "reunión · lunes 31/8 19:00 · Zoom", "evento creado · invitaciones enviadas ✓", 1500),
+    T("Eso que corrió recién es <strong>function calling</strong>: el modelo decide qué ventanilla llamar, arma el pedido con el formato exacto, y usa la respuesta para seguir trabajando. Las «herramientas» de la Clase 1 siempre fueron esto."),
+  ]},
+
+{ id:"conectores", rail:"Conectores", notes:"",
+  steps:[
+    P("¿Y hay que programar cada llamada a mano?"),
+    H2("Conectores: las APIs ya enchufadas"),
+    T("En la práctica, las herramientas que usamos traen <strong>conectores listos</strong>: el agente ya sabe hablar con el calendario, el mail, las planillas, GitHub. Se está estandarizando además un protocolo común para enchufar cualquier sistema — lo vemos la clase que viene."),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>La pregunta vieja</h3><p>¿Se puede conectar el agente con nuestro sistema? — Casi siempre: si tiene API, se conecta.</p></div>
+      <div class="card" style="border-color:var(--accent)"><h3>La pregunta profesional</h3><p>¿Qué le dejo tocar, con qué permisos, y quién firma lo que hace? — El diseño de permisos ES el diseño del puesto.</p></div>
+    </div>`),
+    T("Regla de la casa aplicada a conectores: si el agente «no pudo» tocar un sistema, la pregunta es qué permiso, qué credencial o qué conector le faltó. La respuesta casi nunca es «no se puede»."),
+  ]},
+
+{ id:"demo", rail:"■ DEMO EN VIVO", notes:"",
+  steps:[
+    P("A la herramienta"),
+    A("cediendo pantalla al humano… <span style='color:var(--ink2)'>demo en vivo: un contrato que llama herramientas de verdad</span> ▸"),
+  ]},
+
+{ id:"colaborar", rail:"Ramas, PRs y la ficha", notes:"",
+  steps:[
+    P("Última pieza antes del proyecto: trabajar varios sobre lo mismo"),
+    H2("Ramas y pull requests: colaborar con historia"),
+    RAW(`<div class="viz step" style="line-height:1.9; font-size:16.5px">
+      <div class="vtitle mono">el ciclo de colaboración</div>
+      <strong>1 · Rama:</strong> tu línea de trabajo paralela — experimentás sin romper lo compartido<br>
+      <strong>2 · Pull request:</strong> tu propuesta de cambio, presentada para revisión<br>
+      <strong>3 · Revisión:</strong> el equipo mira, comenta, pide ajustes<br>
+      <strong>4 · Merge:</strong> lo aprobado se integra — con autor, fecha y motivo en la historia</div>`),
+    T("Léanlo como managers: es un <strong>circuito de propuesta → revisión → aprobación con trazabilidad total</strong>. Y ahora lo hacemos de verdad, todos, ya mismo."),
+    A("abriendo tutorial guiado… <span style='color:var(--ink2)'>ramas y pull requests · el agente trabaja, el humano firma</span> ▸"),
+    RAW(`<div class="card step" style="max-width:660px; border-color:var(--accent)">
+      <h3>Ejercicio en vivo: tu primera contribución</h3>
+      <ul style="font-size:16.5px; line-height:1.8">
+        <li>Subí tu <strong>ficha</strong> al repo público de la materia: quién sos, a qué te dedicás, qué proceso delegarías</li>
+        <li>En una <strong>rama tuya</strong>, vía <strong>pull request</strong> — nadie toca main</li>
+        <li>Todo desde el navegador, con tu tutor IA: los prompts exactos están en el <strong>pizarrón de prompts</strong>, en el campus</li>
+      </ul></div>`),
+    T("Cuando termine la clase, el repositorio público de la materia va a tener <strong>una rama y un pull request por cada uno de ustedes</strong> — la evidencia de que cincuenta managers colaboraron sobre un repo. Si no llegás en clase, tenés la semana: la guía queda en el campus."),
+  ]},
+
+{ id:"proyecto", rail:"Parcial y final", notes:"",
+  steps:[
+    P("Y ahora sí: cómo se aprueba esta materia"),
+    H1("Van a construir el agente que corrige el trabajo final"),
+    T("La materia tiene <strong>un parcial y un final</strong>, y están encadenados a propósito. El <strong>parcial, grupal</strong>, es construir un <strong>agente evaluador</strong>: la rúbrica ejecutable y el corrector que la aplica — la idea que planté la semana pasada cuando les mostré que la rúbrica que los corrige es un prompt."),
+    T("El <strong>trabajo final</strong> es un proyecto propio — un sistema agéntico completo para un caso real — que van a subir al campus. ¿Y quién lo corrige? <strong>Los agentes evaluadores que ustedes mismos construyeron.</strong> Si el evaluador de un grupo es flojo, corrige mal — y se nota en vivo, frente a todos."),
+    RAW(`<div class="bigquote step">Evaluar bien es la competencia gerencial definitiva:<br>definir qué es «bien hecho» con tanta precisión que hasta una máquina pueda aplicarlo.
+      <span class="by">— el parcial es demostrarla; el final, someterse a ella</span></div>`),
+  ]},
+
+{ id:"proyecto_que", rail:"Qué entrega cada grupo", notes:"",
+  steps:[
+    P("El parcial, concretamente: ¿qué entrega cada grupo?"),
+    H2("Las cuatro piezas del agente evaluador (el parcial)"),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>1 · La rúbrica ejecutable</h3><p>Criterios, pesos y escalas escritos con la disciplina de la Clase 2: tan precisos que un agente los aplica, tan legibles que un humano los discute.</p></div>
+      <div class="card"><h3>2 · El agente corrector</h3><p>El system prompt + herramientas que lee una entrega real y devuelve puntaje por criterio, justificación y una sugerencia concreta.</p></div>
+    </div>
+    <div class="cardrow step">
+      <div class="card"><h3>3 · Tres casos de prueba</h3><p>Un trabajo excelente, uno flojo y uno tramposo — que intenta engañar al corrector. Su evaluador tiene que distinguir los tres.</p></div>
+      <div class="card"><h3>4 · La calibración</h3><p>La evidencia de que las notas del agente coinciden con el criterio humano sobre los mismos casos — y qué ajustaron cuando no coincidían.</p></div>
+    </div>`),
+    T("Grupos de <strong>hasta seis</strong>. Todo vive en un repo del grupo, con la historia de commits contando quién aportó qué. El <strong>Foro de grupos</strong> queda abierto en el campus desde hoy."),
+  ]},
+
+{ id:"proyecto_ruta", rail:"La ruta hasta el final", notes:"",
+  steps:[
+    P("¿Cuándo pasa todo esto?"),
+    H2("La ruta: parcial primero, final después"),
+    RAW(`<div class="viz step" style="line-height:1.9; font-size:16.5px">
+      <div class="vtitle mono">cronología</div>
+      <strong>Hoy:</strong> arranca el <strong>parcial</strong> — dos semanas completas: armar grupo (hasta seis), elegir caso, fundar el repo<br>
+      <strong>Lunes 31/8 (Clase 4):</strong> arquitectura de agentes — las piezas internas del evaluador · se publican los <strong>requisitos del trabajo final</strong><br>
+      <strong>Clase 5 (jueves 3/9):</strong> taller del parcial en clase — rúbrica, casos de prueba, calibración<br>
+      <strong>Miércoles 9/9 · 18:59:</strong> cierra el parcial — el evaluador de cada grupo, terminado<br>
+      <strong>Clase 6 (jueves 10/9):</strong> los evaluadores corrigen el trabajo final <strong>en vivo</strong></div>`),
+    T("Anoten las dos fechas raras de la ruta: <strong>la próxima clase es LUNES 31/8</strong>, y el parcial no cierra un jueves — cierra el <strong>miércoles 9/9</strong>, para que en la última clase los evaluadores ya estén en cancha."),
+  ]},
+
+{ id:"entrega3", rail:"Entrega 3", notes:"",
+  steps:[
+    P("La tarea de esta semana — corta, porque la semana es corta"),
+    H2("Entrega 3: dale una herramienta a tu contrato"),
+    T("<strong>Individual.</strong> Tomá el contrato que escribiste para la Entrega 2 y hacé que <strong>toque el mundo</strong>: que lea un archivo o una planilla real, o que use un conector o API disponible en tu herramienta. Una corrida documentada alcanza: qué herramienta tocó, qué le pediste, qué volvió, y qué cambió contra la versión sin herramientas."),
+    T("¿No lograste conectar nada a tiempo? El <strong>plan B también aprueba</strong>: un mapa de conectores de tu trabajo — tres sistemas que usás, si tienen API, qué le dejarías tocar a un agente en cada uno, con qué permisos y quién firma. Y en el README, el intento de conexión que no salió, textual: ya saben que el proceso documentado vale."),
+    A("abriendo entregas en moodle… <span style='color:var(--ink2)'>Entrega 3 · vence LUNES 31/8 18:59 · Parcial · cierra miércoles 9/9 18:59</span> ✓"),
+  ]},
+
+{ id:"cierre", rail:"Cierre", notes:"",
+  steps:[
+    P("Cerrando la sesión de hoy"),
+    H2("Para el lunes — sí, el lunes"),
+    RAW(`<div class="card step" style="max-width:640px"><ul style="font-size:17px; line-height:1.8">
+      <li><strong>Leer:</strong> Karpathy, «Software 2.0» + function calling (OpenAI) — en Bibliografía Clase 3</li>
+      <li><strong>Entregar:</strong> Entrega 3 — tu contrato con una herramienta, antes del lunes 18:59</li>
+      <li><strong>Arrancar el parcial:</strong> grupo armado y caso elegido esta semana — el foro de grupos ya está abierto</li>\n      <li><strong>Si quedó pendiente:</strong> tu ficha por pull request — pizarrón de prompts en el campus</li>
+    </ul></div>`),
+    T("Clase 4, <strong>lunes 31/8</strong>: arquitectura de agentes — las piezas internas del evaluador que empezaron a fundar hoy: objetivo, instrucciones, herramientas, memoria, evaluación."),
+    A("guardando estado de la sesión… ✓"),
+    A("próxima ejecución: <span style='color:var(--accent2)'>LUNES 31/8 · 19:00</span>"),
+    A("agente-docente: <span style='color:var(--mono)'>hasta la próxima 👋</span>"),
+  ]},
+];
+
+/* ---- engine ----------------------------------------------------------- */
+let si = 0, stepi = 0, animating = false, typeTimer = null;
+
+const rail = $("#railitems");
+SCENES.forEach((sc,i)=>{
+  const it = el(`<div class="item" data-i="${i}"><span class="mark">○</span><span>${sc.rail}</span></div>`);
+  it.onclick = ()=>{ goto(i); };
+  rail.appendChild(it);
+});
+
+function railSync(){
+  document.querySelectorAll("#rail .item").forEach((it,i)=>{
+    it.classList.toggle("done", i<si);
+    it.classList.toggle("now", i===si);
+    it.querySelector(".mark").textContent = i<si ? "✓" : (i===si ? "▸" : "○");
+  });
+  $("#counter").textContent = `escena ${si+1}/${SCENES.length}`;
+  $("#progress").style.width = ((si)/(SCENES.length-1)*100)+"%";
+  const n=$("#notesbody"); n.textContent = SCENES[si].notes||"";
+}
+
+function renderScene(){
+  const host = $("#scene"); host.innerHTML="";
+  stepi = 0; railSync();
+  advanceStep(); // reveal first step automatically
+}
+
+function buildStep(step){
+  const host = $("#scene");
+  if(step.kind==="type"){
+    const node = el(step.tagHtml); host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    const cur = el(`<span class="cursor"></span>`);
+    node.appendChild(cur);
+    let i=0; animating=true;
+    const plain = step.text;
+    typeTimer = setInterval(()=>{
+      i+=2;
+      node.innerHTML = plain.slice(0,i);
+      node.appendChild(cur);
+      if(i>=plain.length){ finishType(node,plain,cur); }
+    }, 24);
+    return;
+  }
+  if(step.kind==="tool"){
+    const node = el(`<div class="tool step mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res"></span></div>`);
+    host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    animating=true;
+    typeTimer = setTimeout(()=>{ finishTool(node, step); }, step.ms);
+    return;
+  }
+  const node = el(step.html);
+  host.appendChild(node);
+  requestAnimationFrame(()=>{
+    node.classList.add("on");
+    node.querySelectorAll(".step").forEach((c,k)=>setTimeout(()=>c.classList.add("on"), 120*k));
+    node.querySelectorAll(".bar[data-w]").forEach(b=>setTimeout(()=>b.style.width=b.dataset.w, 250));
+  });
+  host.scrollTop = host.scrollHeight;
+}
+
+function finishType(node, plain, cur){
+  clearInterval(typeTimer); typeTimer=null;
+  node.innerHTML = plain; animating=false;
+}
+function finishTool(node, step){
+  clearTimeout(typeTimer); typeTimer=null;
+  node.classList.add("ok");
+  node.querySelector(".res").textContent = "→ "+step.res;
+  animating=false;
+}
+
+function advanceStep(){
+  const sc = SCENES[si];
+  if(animating){ // skip animation
+    const host=$("#scene");
+    const last = host.lastChild;
+    const st = sc.steps[stepi-1];
+    if(st && st.kind==="type") finishType(last, st.text);
+    if(st && st.kind==="tool") finishTool(last, st);
+    return;
+  }
+  if(stepi < sc.steps.length){
+    buildStep(sc.steps[stepi]); stepi++;
+    $("#scene").scrollTop = $("#scene").scrollHeight;
+  } else if(si < SCENES.length-1){
+    si++; renderScene();
+  }
+}
+function back(){
+  if(stepi>1){ renderAll(si, stepi-1); }
+  else if(si>0){ si--; renderAll(si, SCENES[si].steps.length); }
+}
+function goto(i){ si=i; renderScene(); }
+
+function renderAll(sceneIdx, uptoSteps){
+  // re-render scene with first `uptoSteps` steps fully shown, no animation
+  const host=$("#scene"); host.innerHTML=""; stepi=0; animating=false;
+  clearInterval(typeTimer); clearTimeout(typeTimer); typeTimer=null;
+  const sc = SCENES[sceneIdx];
+  for(let k=0;k<uptoSteps;k++){
+    const step = sc.steps[k];
+    if(step.kind==="type"){
+      const node = el(step.tagHtml); node.innerHTML = step.text;
+      node.classList.add("on"); host.appendChild(node);
+    } else if(step.kind==="tool"){
+      const node = el(`<div class="tool step on ok mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res">→ ${step.res}</span></div>`);
+      host.appendChild(node);
+    } else {
+      const node = el(step.html); node.classList.add("on");
+      node.querySelectorAll(".step").forEach(c=>c.classList.add("on"));
+      node.querySelectorAll(".bar[data-w]").forEach(b=>b.style.width=b.dataset.w);
+      host.appendChild(node);
+    }
+  }
+  stepi = uptoSteps; railSync();
+}
+
+document.addEventListener("keydown", e=>{
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="PageDown"){ e.preventDefault(); advanceStep(); }
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); back(); }
+  else if(e.key.toLowerCase()==="n"){ $("#notes").classList.toggle("show"); }
+  else if(e.key.toLowerCase()==="r"){ $("#rail").classList.toggle("hidden"); $("#stage").classList.toggle("wide"); }
+  else if(e.key.toLowerCase()==="f"){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+  else if(e.key==="Home"){ goto(0); }
+});
+document.addEventListener("click", e=>{
+  if(e.target.closest("#rail")||e.target.closest("#notes")) return;
+  advanceStep();
+});
+
+renderScene();
+</script>
+</body>
+</html>

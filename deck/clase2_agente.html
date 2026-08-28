@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 — Creación de Agentes de IA · UCEMA MADE</title>
+<style>
+  :root{
+    --bg:#101014; --panel:#1a1a19; --panel2:#212127;
+    --ink:#ffffff; --ink2:#c3c2b7; --ink3:#8b8a80;
+    --accent:#9d2235; --accent2:#c94b5e;
+    --mono:#7ee2a8;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+    #topbar{position:fixed; top:0; left:0; right:0; height:44px; display:flex;
+    align-items:center; gap:14px; padding:0 18px; z-index:50;
+    background:linear-gradient(180deg,rgba(16,16,20,.96),rgba(16,16,20,.7));
+    font-size:13px; color:var(--ink3)}
+  #topbar .dot{width:9px;height:9px;border-radius:50%;background:var(--mono);
+    box-shadow:0 0 8px var(--mono); animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  #topbar .sep{opacity:.35}
+  #topbar .brand{color:var(--accent2); font-weight:600; letter-spacing:.4px}
+  #counter{margin-left:auto}
+
+  #rail{position:fixed; right:0; top:44px; bottom:40px; width:230px; z-index:40;
+    padding:16px 14px; overflow-y:auto; font-size:12px; color:var(--ink3);
+    border-left:1px solid #26262c; background:rgba(16,16,20,.55);
+    transition:transform .3s}
+  #rail.hidden{transform:translateX(240px)}
+  #rail h4{font-size:11px; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--ink3); margin-bottom:10px}
+  #rail .item{display:flex; gap:8px; padding:5px 4px; border-radius:6px;
+    align-items:baseline; cursor:pointer; line-height:1.25}
+  #rail .item:hover{background:#212127}
+  #rail .item .mark{width:14px; flex:none; color:var(--ink3)}
+  #rail .item.done .mark{color:var(--s3)}
+  #rail .item.now{color:var(--ink)}
+  #rail .item.now .mark{color:var(--mono)}
+
+  #stage{position:absolute; inset:44px 230px 40px 0; display:flex;
+    align-items:center; justify-content:center; padding:28px 40px;
+    transition:inset .3s}
+  #stage.wide{inset:44px 0 40px 0}
+  #scene{width:min(1060px,100%); max-height:100%; overflow-y:auto;
+    scrollbar-width:none}
+  #scene::-webkit-scrollbar{display:none}
+
+  #hints{position:fixed; bottom:0; left:0; right:0; height:40px; display:flex;
+    align-items:center; gap:18px; padding:0 18px; font-size:12px;
+    color:var(--ink3); z-index:50}
+  #hints kbd{background:#26262c; border-radius:4px; padding:1px 7px;
+    font-family:inherit; font-size:11px; color:var(--ink2)}
+  #progress{position:fixed; bottom:40px; left:0; height:2px;
+    background:var(--accent2); width:0%; z-index:60; transition:width .35s}
+
+    .step{opacity:0; transform:translateY(10px);
+    transition:opacity .45s,transform .45s}
+  .step.on{opacity:1; transform:none}
+  .prompt{display:inline-flex; align-items:center; gap:10px; margin-bottom:22px;
+    background:var(--panel2); border:1px solid #33333b; border-radius:999px;
+    padding:8px 18px; font-size:15px; color:var(--ink2)}
+  .prompt::before{content:"▸"; color:var(--accent2); font-weight:700}
+  .agentline{display:flex; gap:10px; font-size:13px; color:var(--ink3);
+    margin:4px 0}
+  .agentline .who{color:var(--mono)}
+  h1.big{font-size:56px; line-height:1.08; letter-spacing:-1px; margin:10px 0 14px}
+  h2.sc{font-size:38px; line-height:1.12; letter-spacing:-.5px; margin:4px 0 18px}
+  .sub{font-size:20px; color:var(--ink2); line-height:1.45}
+  .body-txt{font-size:21px; color:var(--ink2); line-height:1.55; margin:10px 0;
+    max-width:56ch}
+  .body-txt strong{color:var(--ink)}
+  .cursor{display:inline-block; width:.55em; height:1.05em; background:var(--mono);
+    vertical-align:text-bottom; animation:pulse 1s infinite; margin-left:2px}
+
+  .tool{display:flex; align-items:center; gap:12px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:10px; padding:10px 16px;
+    margin:10px 0; font-size:15px; width:fit-content; max-width:100%}
+  .tool .tname{color:var(--mono)}
+  .tool .spin{width:14px; height:14px; border:2px solid #3a3a42;
+    border-top-color:var(--mono); border-radius:50%;
+    animation:rot .8s linear infinite; flex:none}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .tool.ok .spin{border:none; animation:none; width:auto; height:auto}
+  .tool.ok .spin::before{content:"✓"; color:var(--s3); font-weight:700}
+  .tool .res{color:var(--ink3)}
+
+  .cardrow{display:flex; gap:18px; margin:18px 0; flex-wrap:wrap}
+  .card{flex:1; min-width:240px; background:var(--panel);
+    border:1px solid #2c2c33; border-radius:var(--radius); padding:22px}
+  .card h3{font-size:17px; margin-bottom:10px; color:var(--ink)}
+  .card p,.card li{font-size:15.5px; color:var(--ink2); line-height:1.5}
+  .card ul{padding-left:18px; margin-top:6px}
+  .card.hl{border-color:var(--accent); box-shadow:0 0 24px rgba(157,34,53,.25)}
+  .tag{display:inline-block; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; padding:3px 10px; border-radius:999px;
+    background:#26262c; color:var(--ink3); margin-bottom:10px}
+
+  .bigquote{font-size:30px; line-height:1.4; max-width:34ch; color:var(--ink);
+    border-left:4px solid var(--accent); padding-left:26px; margin:22px 0}
+  .bigquote .by{display:block; font-size:16px; color:var(--ink3); margin-top:14px}
+
+  .handoff{display:flex; flex-direction:column; align-items:center; gap:18px;
+    text-align:center; padding:40px 0}
+  .handoff .live{font-size:13px; letter-spacing:3px; color:#fff;
+    background:var(--accent); border-radius:999px; padding:7px 20px;
+    animation:pulse 1.6s infinite}
+  .handoff h2{font-size:52px; letter-spacing:-1px}
+
+  table.simple{border-collapse:collapse; margin:14px 0; width:100%}
+  table.simple th{font-size:13px; text-transform:uppercase; letter-spacing:.8px;
+    color:var(--ink3); text-align:left; padding:8px 14px 8px 0;
+    border-bottom:1px solid #2c2c33}
+  table.simple td{font-size:16px; color:var(--ink2); padding:9px 14px 9px 0;
+    border-bottom:1px solid #222228; line-height:1.4}
+  table.simple td:first-child{color:var(--ink); white-space:nowrap}
+
+  /* viz panels (dataviz tokens) */
+  .viz{background:var(--panel); border:1px solid #2c2c33;
+    border-radius:var(--radius); padding:20px 22px; margin:16px 0}
+  .viz .vtitle{font-size:14px; color:var(--ink2); margin-bottom:12px}
+  .tokbar{display:flex; align-items:center; gap:12px; margin:7px 0}
+  .tokbar .tk{width:120px; font-size:16px; text-align:right; color:var(--ink)}
+  .tokbar .bar{height:22px; border-radius:0 4px 4px 0; background:var(--s1);
+    width:0; transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .tokbar .pct{font-size:13px; color:var(--ink3)}
+
+  #notes{position:fixed; inset:auto 0 0 0; background:rgba(12,12,15,.97);
+    border-top:2px solid var(--accent); padding:18px 26px 46px; z-index:80;
+    font-size:16px; line-height:1.5; color:var(--ink2); display:none;
+    max-height:45%; overflow-y:auto}
+  #notes.show{display:block}
+  #notes .nt{font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--accent2); margin-bottom:8px}
+
+  .levels{display:flex; gap:10px; margin:20px 0; flex-wrap:wrap}
+  .lv{flex:1; min-width:150px; background:var(--panel); border:1px solid #2c2c33;
+    border-radius:10px; padding:14px}
+  .lv .l{font-size:12px; color:var(--mono); margin-bottom:6px}
+  .lv b{display:block; font-size:15px; margin-bottom:6px; color:var(--ink)}
+  .lv p{font-size:13px; color:var(--ink3); line-height:1.4}
+  .lv.hl{border-color:var(--accent)}
+</style>
+</head>
+<body>
+  <div id="topbar" class="mono">
+    <span class="dot"></span>
+    <span>agente-docente</span><span class="sep">·</span>
+    <span class="brand">Creación de Agentes de IA</span><span class="sep">·</span>
+    <span>MADE · UCEMA · clase 2/6</span>
+    <span id="counter"></span>
+  </div>
+  <div id="rail"><h4>Plan de la clase</h4><div id="railitems"></div></div>
+  <div id="stage"><div id="scene"></div></div>
+  <div id="progress"></div>
+  <div id="hints">
+    <span><kbd>espacio</kbd>/<kbd>→</kbd> avanzar</span>
+    <span><kbd>←</kbd> volver</span>
+    <span></span>
+    <span><kbd>R</kbd> panel</span>
+    <span><kbd>F</kbd> pantalla completa</span>
+  </div>
+  <div id="notes"><div class="nt">Notas del presentador</div><div id="notesbody"></div></div>
+
+<script>
+/* =========================================================
+   AgentDeck — presentación agéntica · Clase 2
+   Escenas declarativas; cada escena = pasos que se revelan.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+
+function el(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+
+/* ---- step builders ---------------------------------------------------- */
+const P  = html => ({kind:"fade", html:`<div class="step prompt">${html}</div>`});
+const A  = html => ({kind:"fade", html:`<div class="step agentline mono"><span class="who">agente ▸</span><span>${html}</span></div>`});
+const H1 = html => ({kind:"type", tagHtml:`<h1 class="big step"></h1>`, text:html});
+const H2 = html => ({kind:"type", tagHtml:`<h2 class="sc step"></h2>`, text:html});
+const T  = html => ({kind:"fade", html:`<p class="body-txt step">${html}</p>`});
+const RAW= html => ({kind:"fade", html:`<div class="step">${html}</div>`});
+const TOOL = (name,args,res,ms=1100) => ({kind:"tool", name, args, res, ms});
+
+/* ---- scenes ----------------------------------------------------------- */
+const SCENES = [
+
+{ id:"boot", rail:"Inicio", notes:"",
+  steps:[
+    A("iniciando sesión…"),
+    A("cargando contexto: <span style='color:var(--ink2)'>MADE · UCEMA · 2026 2T · clase 2 de 6</span>"),
+    TOOL("leer_entregas", "Entrega 1 · campus Moodle", "26 entregas · 20 repos públicos ✓", 1400),
+    TOOL("leer_foro", "Foro de consultas + Vitrina", "actividad de la semana cargada ✓", 1200),
+    A("objetivo de hoy: <span style='color:var(--ink2)'>que nadie vuelva a escribir un prompt sin diseñarlo</span>"),
+    H1("Creación de Agentes de IA"),
+    T("Clase 2 · Prompting, especificación de tareas y diseño de instrucciones<br><span style='color:var(--ink3)'>Alfredo B. Roisenzvit · 20 de agosto de 2026</span>"),
+  ]},
+
+{ id:"revision", rail:"Revisión · Entrega 1", notes:"",
+  steps:[
+    P("Antes de la teoría: ¿qué construyeron?"),
+    H2("Revisión de la Entrega 1"),
+    RAW(`<div class="viz mono step" style="font-size:14.5px; line-height:1.8">
+      <div class="vtitle">evaluación preliminar · corrigió un agente, revisa el humano</div>
+      entregas: <span style="color:var(--mono)">26</span> · repos públicos: <span style="color:var(--mono)">20</span><br>
+      nota media: <span style="color:var(--accent2)">88,2</span> · mediana: <span style="color:var(--accent2)">91</span> · con 90 o más: <span style="color:var(--mono)">15 de 26</span><br>
+      qué trajeron: agentes de análisis financiero y bancario · juegos educativos ·<br>
+      optimizadores logísticos · bots de reservas · dashboards · generadores de contenido</div>`),
+    A("abriendo proyectos seleccionados para revisión en vivo…"),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>Lo que distinguió a los mejores</h3><p>La evidencia de proceso: prompts en orden, decisiones, pruebas, errores y cambios de enfoque — no la descripción del producto terminado.</p></div>
+      <div class="card"><h3>Lo que más costó</h3><p>Documentar el «cómo se lo pedí» textual · repos privados o no informados · la reflexión final, corta o delegada al agente.</p></div>
+    </div>`),
+    T("Los pesos de la rúbrica funcionaron como se anunció: <strong>hubo un 93 con el resultado a medio andar</strong> — proceso y reflexión sobresalientes — y la nota más baja fue un producto sólido <strong>sin historia de cómo se construyó</strong>. El proceso valía 40; que funcione, 20."),
+    T("Y el patrón que ordena la noche: lo que separó las notas <strong>no fue el código — fue el contrato</strong>. Pedidos vagos, iteraciones sin registrar, salidas sin formato. De eso exacto es la clase de hoy."),
+  ]},
+
+{ id:"puente", rail:"De pedir a especificar", notes:"",
+  steps:[
+    P("La semana pasada le pidieron cosas a un agente. ¿Qué aprendemos de eso?"),
+    H2("De pedir a especificar"),
+    RAW(`<table class="simple step">
+      <tr><th></th><th>Pedir</th><th>Especificar</th></tr>
+      <tr><td>Qué es</td><td>Decir qué querés</td><td>Definir el contrato completo del resultado</td></tr>
+      <tr><td>El resultado</td><td>Distinto cada vez</td><td>Repetible y comparable</td></tr>
+      <tr><td>Si sale mal</td><td>«El modelo no entendió»</td><td>Sé exactamente qué línea del contrato ajustar</td></tr>
+      <tr><td>Sirve para</td><td>Usos de una vez</td><td>Sistemas que corren solos, cientos de veces</td></tr>
+    </table>`),
+    T("Especificar no es una habilidad técnica: es <strong>la competencia gerencial de siempre</strong> — delegar con criterios de aceptación claros — aplicada a un trabajador nuevo que lee rapidísimo y no adivina intenciones."),
+    RAW(`<div class="bigquote step">Un prompt profesional no es una pregunta.<br>Es la especificación de un entregable.
+      <span class="by">— y se escribe, se versiona y se mejora como cualquier especificación</span></div>`),
+  ]},
+
+{ id:"anatomia", rail:"Anatomía de un prompt", notes:"",
+  steps:[
+    P("¿Y cómo se escribe una especificación para un agente?"),
+    H2("Las seis piezas de un prompt profesional"),
+    RAW(`<div class="cardrow step">
+      <div class="card"><h3>1 · Rol</h3><p>Quién es el agente: «sos un analista de riesgo crediticio con 20 años en banca».</p></div>
+      <div class="card"><h3>2 · Contexto</h3><p>Lo que necesita saber del mundo: la empresa, el público, los datos que le das.</p></div>
+      <div class="card"><h3>3 · Tarea</h3><p>Qué tiene que producir, en una frase inequívoca.</p></div>
+    </div>
+    <div class="cardrow step">
+      <div class="card"><h3>4 · Restricciones</h3><p>Qué no puede hacer: extensión, tono, fuentes, qué queda afuera.</p></div>
+      <div class="card"><h3>5 · Formato</h3><p>La forma exacta de la salida: tabla, JSON, memo de una página.</p></div>
+      <div class="card"><h3>6 · Ejemplos</h3><p>Dos o tres muestras de entrada→salida deseada. La pieza más subestimada.</p></div>
+    </div>`),
+    T("La utilidad práctica no es llenar una plantilla: es el <strong>diagnóstico</strong>. Cuando un resultado decepciona, la pregunta profesional es: ¿cuál de las seis piezas falta o está floja?"),
+  ]},
+
+{ id:"ejemplo", rail:"El mismo pedido, marcado", notes:"",
+  steps:[
+    P("Veamos dónde cae cada pieza, con un pedido real"),
+    H2("El mismo pedido, dos escrituras"),
+    RAW(`<div class="viz mono step" style="font-size:14.5px; line-height:1.8; border-color:#5a2b2b">
+      <div class="vtitle" style="color:#ff6b81">el prompt que escribe todo el mundo</div>
+      Analizame estos contratos y decime si hay riesgos.</div>`),
+    RAW(`<div class="viz mono step" style="font-size:13.5px; line-height:2.05">
+      <div class="vtitle">el mismo pedido, con las seis piezas</div>
+      <span style="background:#ff6b8122; color:#ff6b81; padding:2px 7px; border-radius:4px; font-size:11px">1 · ROL</span> <span style="color:#ff9baa">Sos un abogado corporativo senior, especialista en contratos de proveedores.</span><br>
+      <span style="background:#ffb45422; color:#ffb454; padding:2px 7px; border-radius:4px; font-size:11px">2 · CONTEXTO</span> <span style="color:#ffcf8f">Te paso los 40 contratos vigentes de la carpeta. Somos una pyme argentina; nos preocupa la exposición si un proveedor rescinde.</span><br>
+      <span style="background:#7dd3fc22; color:#7dd3fc; padding:2px 7px; border-radius:4px; font-size:11px">3 · TAREA</span> <span style="color:#aee3ff">Identificá en cada contrato la cláusula de rescisión y evaluá el riesgo para nosotros.</span><br>
+      <span style="background:#c792ea22; color:#c792ea; padding:2px 7px; border-radius:4px; font-size:11px">4 · RESTRICCIONES</span> <span style="color:#ddb8f5">Solo riesgo de rescisión — no analices precios ni confidencialidad. Si un contrato no tiene la cláusula, marcalo, no inventes. Máximo una línea por contrato.</span><br>
+      <span style="background:#34d39922; color:#34d399; padding:2px 7px; border-radius:4px; font-size:11px">5 · FORMATO</span> <span style="color:#7fe6c0">Tabla: contrato · cláusula (cita textual) · riesgo alto/medio/bajo · monto expuesto · vencimiento. Ordenada por riesgo.</span><br>
+      <span style="background:#f2d67522; color:#f2d675; padding:2px 7px; border-radius:4px; font-size:11px">6 · EJEMPLOS</span> <span style="color:#f7e6a8">Ejemplo de fila: Proveedor_14.pdf · «cualquiera de las partes podrá rescindir sin causa con 30 días de aviso» · alto · USD 240.000 · 30/11/2026.</span></div>`),
+    T("El primero no está mal escrito — está <strong>incompleto</strong>: tiene la tarea y nada más. Cinco contratos de seis quedaron sin firmar, y ese vacío lo llena el modelo adivinando. El segundo se escribió una vez, y corre todas las semanas."),
+  ]},
+
+{ id:"systemuser", rail:"System y user prompt", notes:"",
+  steps:[
+    P("¿Dónde viven esas piezas cuando el sistema corre solo?"),
+    H2("System prompt y user prompt"),
+    RAW(`<div class="cardrow step">
+      <div class="card" style="border-color:var(--accent)"><h3>System prompt</h3><p>La identidad estable: rol, reglas, límites, formato por defecto. Se escribe <strong>una vez</strong> y define al agente.</p></div>
+      <div class="card"><h3>User prompt</h3><p>El pedido puntual de esta corrida: la tarea de hoy, los datos de hoy. Cambia en cada uso.</p></div>
+    </div>`),
+    T("Ya conocen un system prompt sin saberlo — el de <strong>esta presentación</strong>, que vieron en la Clase 1: «sos el agente docente… español rioplatense, cero jerga, cada concepto con ejemplo». Todo lo que hace este deck respeta ese contrato."),
+    T("La separación importa porque es lo que vuelve un prompt <strong>un sistema</strong>: la identidad queda fija y auditada; lo variable entra por el pedido. Igual que un puesto de trabajo bien definido."),
+  ]},
+
+{ id:"demovago", rail:"Vago vs. especificado", notes:"",
+  steps:[
+    P("Veámoslo correr. El mismo pedido, dos especificaciones."),
+    H2("El costo de la vaguedad"),
+    A("corrida 1 ▸ <span style='color:var(--ink2)'>«analizame estos contratos»</span>"),
+    TOOL("ejecutar_prompt", "prompt vago · 8 palabras", "7 párrafos genéricos · sin fechas · sin montos · inutilizable", 1600),
+    A("corrida 2 ▸ <span style='color:var(--ink2)'>rol + contexto + tarea + restricciones + formato + 1 ejemplo</span>"),
+    TOOL("ejecutar_prompt", "prompt especificado · 190 palabras", "tabla: 12 contratos · cláusula · riesgo · monto · vencimiento ✓", 1800),
+    T("El modelo es el mismo. El costo es casi el mismo. <strong>La diferencia entera está en la especificación</strong> — y la segunda se escribió una vez y sirve para siempre."),
+  ]},
+
+{ id:"estructurados", rail:"Outputs estructurados", notes:"",
+  steps:[
+    P("¿Y por qué tanta insistencia con el formato de salida?"),
+    H2("Outputs estructurados: la salida como dato"),
+    T("Una respuesta en prosa se lee una vez. Una respuesta <strong>estructurada</strong> — tabla, JSON, checklist — se compara entre corridas, se audita, y alimenta al paso siguiente del workflow sin que nadie copie y pegue."),
+    RAW(`<div class="viz mono step" style="font-size:14px; line-height:1.65">
+      <div class="vtitle">la misma conclusión, como dato</div>
+      {<br>
+      &nbsp;&nbsp;"contrato": "Proveedor_14.pdf",<br>
+      &nbsp;&nbsp;"riesgo_rescision": <span style="color:var(--accent2)">"alto"</span>,<br>
+      &nbsp;&nbsp;"monto_expuesto_usd": 240000,<br>
+      &nbsp;&nbsp;"vence": "2026-11-30",<br>
+      &nbsp;&nbsp;"recomendacion": "renegociar antes del Q4"<br>
+      }</div>`),
+    T("JSON es solo eso: <strong>la salida con nombres</strong>. No hace falta programar para leerlo — hace falta para exigirlo. Y exigirlo es lo que convierte una respuesta linda en una pieza de un sistema."),
+  ]},
+
+{ id:"rubrica", rail:"La rúbrica como spec", notes:"",
+  steps:[
+    P("Les muestro la especificación más importante que corrió esta semana"),
+    H2("La rúbrica con la que los corregí es un prompt"),
+    RAW(`<div class="viz mono step" style="font-size:13.5px; color:var(--ink2); line-height:1.7">
+      <div class="vtitle">system_prompt · agente corrector · Entrega 1</div>
+      Sos el corrector de la materia. Evaluá cada entrega con esta rúbrica:<br>
+      &nbsp;&nbsp;proceso documentado (40) · comprensión de la lógica agéntica (30)<br>
+      &nbsp;&nbsp;resultado funcionando (20) · reflexión honesta (10)<br>
+      Regla: un proyecto roto bien contado vale más que uno prolijo<br>
+      sin proceso. Devolvé: puntaje por criterio + 3 líneas de justificación<br>
+      + 1 sugerencia concreta para la próxima entrega.</div>`),
+    T("Una rúbrica bien escrita es <strong>una especificación ejecutable</strong>: tan precisa que un agente puede aplicarla, tan legible que un humano puede discutirla. Es la misma disciplina de todo lo de hoy, aplicada a evaluar."),
+    T("<strong>Guarden esta idea.</strong> La semana que viene se vuelve el centro de la materia."),
+  ]},
+
+{ id:"demo", rail:"■ DEMO EN VIVO", notes:"",
+  steps:[
+    P("Suficiente teoría — a la herramienta"),
+    A("cediendo pantalla al humano… <span style='color:var(--ink2)'>demo en vivo: reescribir un prompt real de la Entrega 1</span> ▸"),
+  ]},
+
+{ id:"tokens", rail:"Tokens y costos", notes:"",
+  steps:[
+    P("Hablemos de la parte que a un MBA le suena: cuánto cuesta esto"),
+    H2("Tokens: la unidad de cuenta"),
+    T("Un <strong>token</strong> es la unidad mínima que procesa un modelo — más o menos ¾ de una palabra. Todo se mide y se cobra en tokens: lo que entra (tu prompt, tus documentos) y lo que sale (la respuesta). <strong>Los de salida cuestan 3-5 veces más.</strong>"),
+    RAW(`<div class="viz mono step" style="font-size:14px; line-height:1.8">
+      <div class="vtitle">la cuenta que importa · informe semanal automatizado</div>
+      entrada: contexto + 40 contratos &nbsp;→&nbsp; ~60.000 tokens<br>
+      salida: informe estructurado &nbsp;→&nbsp; ~4.000 tokens<br>
+      costo por corrida (modelo frontier) &nbsp;→&nbsp; <span style="color:var(--accent2)">~USD 1,00</span><br>
+      × 50 corridas por semana × 52 semanas &nbsp;→&nbsp; <span style="color:var(--accent2)">~USD 2.600 al año</span><br>
+      mismo flujo, modelo liviano bien especificado &nbsp;→&nbsp; <span style="color:var(--mono)">~USD 260 al año</span></div>`),
+    T("La especificación también es plata: <strong>contexto justo</strong> en vez de «todo el documento por las dudas», salidas acotadas, resúmenes intermedios. En sistemas que corren solos, cada palabra de más se multiplica."),
+  ]},
+
+{ id:"modelos", rail:"Elección de modelo", notes:"",
+  steps:[
+    P("¿Y qué modelo uso para cada cosa?"),
+    H2("El modelo más chico que hace bien la tarea"),
+    RAW(`<table class="simple step">
+      <tr><th></th><th>Modelos frontier</th><th>Modelos livianos</th></tr>
+      <tr><td>Ejemplos</td><td>GPT-5.x · Claude Fable · Gemini Pro</td><td>mini · haiku · flash</td></tr>
+      <tr><td>Fuertes en</td><td>Razonamiento complejo, ambigüedad, diseño</td><td>Tareas repetitivas bien especificadas</td></tr>
+      <tr><td>Costo relativo</td><td>1×</td><td>10-30× más barato, y más rápido</td></tr>
+      <tr><td>Cuándo</td><td>Diseñar el sistema, casos difíciles</td><td>Correrlo en producción, cientos de veces</td></tr>
+    </table>`),
+    T("Regla práctica de esta materia: <strong>se diseña con el modelo grande y se opera con el más chico que pase la prueba.</strong> Y la prueba la define tu especificación: si el liviano falla, primero revisá el contrato, después subí de modelo."),
+  ]},
+
+{ id:"iteracion", rail:"Iterar con método", notes:"",
+  steps:[
+    P("Última pieza: ¿qué hago cuando el resultado no me convence?"),
+    H2("Iterar con método, no a ciegas"),
+    RAW(`<div class="viz step" style="line-height:1.9; font-size:16.5px">
+      <div class="vtitle mono">el loop de mejora</div>
+      <strong>1 · Probar</strong> con un caso real y guardar el resultado<br>
+      <strong>2 · Observar</strong> qué falló, textual — no «quedó raro»: qué línea, qué dato<br>
+      <strong>3 · Ajustar una pieza</strong> del contrato (¿rol? ¿restricción? ¿ejemplo?)<br>
+      <strong>4 · Volver a correr el mismo caso</strong> y comparar</div>`),
+    T("Cambiar <strong>una pieza por vez</strong> es lo que te deja saber qué mejoró el resultado. Y documentar cada vuelta — qué falló, qué tocaste, qué cambió — convierte tu prueba y error en conocimiento transferible. Eso exacto pide la Entrega 2."),
+  ]},
+
+{ id:"taller", rail:"Taller en vivo", notes:"",
+  steps:[
+    P("Manos a la obra, todos juntos"),
+    H2("Taller: tres vueltas sobre un prompt real"),
+    RAW(`<div class="card step" style="max-width:640px">
+      <ul style="font-size:17px; line-height:1.8">
+        <li><strong>Un voluntario</strong> presta el prompt de su Entrega 1</li>
+        <li>La clase diagnostica con las seis piezas: ¿qué falta?</li>
+        <li><strong>Tres iteraciones</strong>, corriendo de verdad cada versión</li>
+        <li>Comparamos la salida 1 contra la salida 4 — misma entrada</li>
+      </ul></div>`),
+    A("preparando entorno del taller… <span style='color:var(--ink2)'>herramienta en vivo + caso de prueba del voluntario</span> ✓"),
+  ]},
+
+{ id:"entrega2", rail:"Entrega 2", notes:"",
+  steps:[
+    P("La tarea de esta semana"),
+    H2("Entrega 2: diseñá una instrucción repetible"),
+    T("Elegí <strong>una tarea recurrente de tu trabajo</strong> y escribile el contrato completo: system prompt + user prompt con las seis piezas, y un <strong>formato de salida estructurado</strong>. Corrélo tres veces con casos reales, y documentá <strong>dos iteraciones de mejora</strong>: qué falló, qué pieza tocaste, qué cambió."),
+    RAW(`<table class="simple step">
+      <tr><th>Qué se evalúa (corrige un agente)</th><th>Peso</th></tr>
+      <tr><td>Especificación clara — las seis piezas, separadas system/user</td><td>30</td></tr>
+      <tr><td>Iteraciones documentadas — el antes, el cambio, el después</td><td>30</td></tr>
+      <tr><td>Output estructurado y repetible en las tres corridas</td><td>25</td></tr>
+      <tr><td>Reflexión: qué aprendiste del contrato</td><td>15</td></tr>
+    </table>`),
+    T("Se entrega en tu repo — los prompts como archivos, el README estándar contando las iteraciones. Ya saben la casa: <strong>una iteración honesta vale más que un prompt «perfecto» sin historia.</strong>"),
+    A("abriendo entrega en moodle… <span style='color:var(--ink2)'>Entrega 2 · abre hoy 22:00 · vence jueves 27/8 18:59</span> ✓"),
+  ]},
+
+{ id:"cierre", rail:"Cierre", notes:"",
+  steps:[
+    P("Cerrando la sesión de hoy"),
+    H2("Para el jueves que viene"),
+    RAW(`<div class="card step" style="max-width:640px"><ul style="font-size:17px; line-height:1.8">
+      <li><strong>Leer:</strong> las dos guías de prompting (OpenAI y Anthropic) — en Bibliografía Clase 2</li>
+      <li><strong>Entregar:</strong> Entrega 2 — tu instrucción repetible, en tu repo</li>
+      <li><strong>Traer:</strong> una tarea de tu trabajo que harías correr sola cada semana</li>
+    </ul></div>`),
+    T("Clase 3: <strong>APIs y conectores</strong> — sus contratos empiezan a llamar herramientas — y la presentación del <strong>proyecto final de la materia</strong>. Guardaron la idea de la rúbrica: la van a necesitar."),
+    A("guardando estado de la sesión… ✓"),
+    A("próxima ejecución: <span style='color:var(--ink2)'>jueves 27/8 · 19:00</span>"),
+    A("agente-docente: <span style='color:var(--mono)'>hasta la próxima 👋</span>"),
+  ]},
+];
+
+/* ---- engine ----------------------------------------------------------- */
+let si = 0, stepi = 0, animating = false, typeTimer = null;
+
+const rail = $("#railitems");
+SCENES.forEach((sc,i)=>{
+  const it = el(`<div class="item" data-i="${i}"><span class="mark">○</span><span>${sc.rail}</span></div>`);
+  it.onclick = ()=>{ goto(i); };
+  rail.appendChild(it);
+});
+
+function railSync(){
+  document.querySelectorAll("#rail .item").forEach((it,i)=>{
+    it.classList.toggle("done", i<si);
+    it.classList.toggle("now", i===si);
+    it.querySelector(".mark").textContent = i<si ? "✓" : (i===si ? "▸" : "○");
+  });
+  $("#counter").textContent = `escena ${si+1}/${SCENES.length}`;
+  $("#progress").style.width = ((si)/(SCENES.length-1)*100)+"%";
+  const n=$("#notesbody"); n.textContent = SCENES[si].notes||"";
+}
+
+function renderScene(){
+  const host = $("#scene"); host.innerHTML="";
+  stepi = 0; railSync();
+  advanceStep(); // reveal first step automatically
+}
+
+function buildStep(step){
+  const host = $("#scene");
+  if(step.kind==="type"){
+    const node = el(step.tagHtml); host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    const cur = el(`<span class="cursor"></span>`);
+    node.appendChild(cur);
+    let i=0; animating=true;
+    const plain = step.text;
+    typeTimer = setInterval(()=>{
+      i+=2;
+      node.innerHTML = plain.slice(0,i);
+      node.appendChild(cur);
+      if(i>=plain.length){ finishType(node,plain,cur); }
+    }, 24);
+    return;
+  }
+  if(step.kind==="tool"){
+    const node = el(`<div class="tool step mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res"></span></div>`);
+    host.appendChild(node);
+    requestAnimationFrame(()=>node.classList.add("on"));
+    animating=true;
+    typeTimer = setTimeout(()=>{ finishTool(node, step); }, step.ms);
+    return;
+  }
+  const node = el(step.html);
+  host.appendChild(node);
+  requestAnimationFrame(()=>{
+    node.classList.add("on");
+    node.querySelectorAll(".step").forEach((c,k)=>setTimeout(()=>c.classList.add("on"), 120*k));
+    node.querySelectorAll(".bar[data-w]").forEach(b=>setTimeout(()=>b.style.width=b.dataset.w, 250));
+  });
+  host.scrollTop = host.scrollHeight;
+}
+
+function finishType(node, plain, cur){
+  clearInterval(typeTimer); typeTimer=null;
+  node.innerHTML = plain; animating=false;
+}
+function finishTool(node, step){
+  clearTimeout(typeTimer); typeTimer=null;
+  node.classList.add("ok");
+  node.querySelector(".res").textContent = "→ "+step.res;
+  animating=false;
+}
+
+function advanceStep(){
+  const sc = SCENES[si];
+  if(animating){ // skip animation
+    const host=$("#scene");
+    const last = host.lastChild;
+    const st = sc.steps[stepi-1];
+    if(st && st.kind==="type") finishType(last, st.text);
+    if(st && st.kind==="tool") finishTool(last, st);
+    return;
+  }
+  if(stepi < sc.steps.length){
+    buildStep(sc.steps[stepi]); stepi++;
+    $("#scene").scrollTop = $("#scene").scrollHeight;
+  } else if(si < SCENES.length-1){
+    si++; renderScene();
+  }
+}
+function back(){
+  if(stepi>1){ renderAll(si, stepi-1); }
+  else if(si>0){ si--; renderAll(si, SCENES[si].steps.length); }
+}
+function goto(i){ si=i; renderScene(); }
+
+function renderAll(sceneIdx, uptoSteps){
+  // re-render scene with first `uptoSteps` steps fully shown, no animation
+  const host=$("#scene"); host.innerHTML=""; stepi=0; animating=false;
+  clearInterval(typeTimer); clearTimeout(typeTimer); typeTimer=null;
+  const sc = SCENES[sceneIdx];
+  for(let k=0;k<uptoSteps;k++){
+    const step = sc.steps[k];
+    if(step.kind==="type"){
+      const node = el(step.tagHtml); node.innerHTML = step.text;
+      node.classList.add("on"); host.appendChild(node);
+    } else if(step.kind==="tool"){
+      const node = el(`<div class="tool step on ok mono"><span class="spin"></span><span class="tname">${step.name}</span><span style="color:var(--ink3)">(${step.args})</span><span class="res">→ ${step.res}</span></div>`);
+      host.appendChild(node);
+    } else {
+      const node = el(step.html); node.classList.add("on");
+      node.querySelectorAll(".step").forEach(c=>c.classList.add("on"));
+      node.querySelectorAll(".bar[data-w]").forEach(b=>b.style.width=b.dataset.w);
+      host.appendChild(node);
+    }
+  }
+  stepi = uptoSteps; railSync();
+}
+
+document.addEventListener("keydown", e=>{
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="PageDown"){ e.preventDefault(); advanceStep(); }
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); back(); }
+  else if(e.key.toLowerCase()==="n"){ $("#notes").classList.toggle("show"); }
+  else if(e.key.toLowerCase()==="r"){ $("#rail").classList.toggle("hidden"); $("#stage").classList.toggle("wide"); }
+  else if(e.key.toLowerCase()==="f"){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+  else if(e.key==="Home"){ goto(0); }
+});
+document.addEventListener("click", e=>{
+  if(e.target.closest("#rail")||e.target.closest("#notes")) return;
+  advanceStep();
+});
+
+renderScene();
+</script>
+</body>
+</html>
