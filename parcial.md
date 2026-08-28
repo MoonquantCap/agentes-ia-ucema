@@ -8,7 +8,7 @@
 
 ## Qué es
 
-El parcial de la materia es construir un **agente evaluador**: el sistema que va a corregir los trabajos finales de sus compañeros — con una prueba de fuego en vivo, frente a todos, en la última clase.
+El parcial de la materia es construir un **agente evaluador**: un sistema capaz de corregir los trabajos finales de la cursada. En la última clase, todos los evaluadores pasan por una prueba de fuego en vivo — y el mejor es elegido **el agente evaluador de la materia**: el único que corrige los trabajos finales de todos.
 
 La lógica la vieron en clase: la rúbrica con la que se corrigen sus entregas es un prompt — una especificación ejecutable. Ahora la escriben ustedes. Evaluar bien es definir «bien hecho» con tanta precisión que hasta una máquina puede aplicarlo; el parcial es demostrar esa competencia.
 
@@ -48,7 +48,7 @@ La **historia de commits** debe mostrar el trabajo real del grupo: quién aport�
 | Calibración documentada: desacuerdos encontrados, ajustes hechos, resultado | 15 |
 | Proceso grupal: historia de commits, iteraciones de la rúbrica, decisiones registradas | 15 |
 
-**La prueba de fuego es pública:** en la última clase, cada agente evaluador corrige en vivo casos que nunca vio. Después del cierre del trabajo final (domingo 13/9), su evaluador corrige de verdad los proyectos de otro grupo. Un evaluador que se desploma frente a un caso real dice algo sobre su construcción — y la clase entera lo va a ver. Construyan para ese momento.
+**La prueba de fuego es pública y tiene premio:** en la última clase, cada agente evaluador corrige en vivo casos que nunca vio — y de esa prueba se elige **el agente evaluador de la materia**: uno solo, el que va a corregir todos los trabajos finales tras el cierre del domingo 13/9. Un evaluador que se desploma frente a un caso real dice algo sobre su construcción, y la clase entera lo va a ver. Construyan para ganar ese lugar.
 
 ## Reglas de la casa, aplicadas
 

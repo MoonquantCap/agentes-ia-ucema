@@ -2,7 +2,7 @@
 
 **Programación de y con Agentes de IA** · MBA UCEMA · 2026 2T · Prof. Alfredo B. Roisenzvit
 
-**Individual · Se entrega: domingo 13/9, 23:59 · Corrección: por los agentes evaluadores del parcial, con asignación cruzada**
+**Individual · Se entrega: domingo 13/9, 23:59 · Corrección: por el agente evaluador de la materia, elegido en la última clase**
 
 ---
 
@@ -10,7 +10,7 @@
 
 El trabajo final es un **sistema agéntico completo aplicado a un caso real** de tu trabajo, tu negocio o tu interés — la versión seria de lo que empezaste en la Entrega 1. No es un chatbot ni un prompt suelto: es un agente con objetivo, contrato, herramientas y supervisión definida, que corre de verdad sobre datos reales.
 
-**Quién lo corrige:** el agente evaluador de **otro grupo** — nunca el del propio. La asignación cruzada se sortea en la última clase (jueves 10/9), donde además cada evaluador muestra en vivo cómo corrige. Tu proyecto se corrige después del cierre, y los resultados se publican en el campus. Tu nota depende, en parte, de qué tan bien otro equipo definió «bien hecho»; la de ellos, de que su evaluador esté a la altura de tu trabajo. Los desacuerdos los arbitra el profesor.
+**Quién lo corrige:** un único agente. En la última clase (jueves 10/9), cada grupo somete su evaluador a la prueba de fuego en vivo — y de esa prueba sale elegido **el agente evaluador de la materia**: uno solo, el que mejor corrige. Ese agente corrige **todos** los trabajos finales después del cierre, y los resultados se publican en el campus. Todos son evaluados por la misma vara — una vara que construyeron ustedes. Los desacuerdos los arbitra el profesor.
 
 ## Los seis requisitos
 
@@ -45,7 +45,7 @@ Esta es la rúbrica que los agentes evaluadores del parcial vuelven ejecutable y
 | Análisis económico: costo por corrida, proyección, elección de modelo justificada | 15 |
 | Gobierno y riesgo: permisos, fallas posibles, supervisión, quién firma | 15 |
 
-Como en toda la materia: **un sistema honesto con una falla bien contada vale más que uno pulido que no se entiende.** El evaluador que te corrija va a estar construido sobre esa misma filosofía.
+Como en toda la materia: **un sistema honesto con una falla bien contada vale más que uno pulido que no se entiende.** El evaluador que te corrija fue construido sobre esa misma filosofía — por tus propios compañeros.
 
 ## Escala y consejos
 
@@ -53,4 +53,4 @@ La escala correcta es «el mejor proyecto que se puede construir en dos semanas 
 
 ## Entrega
 
-Subí el **link a tu repositorio público** en la actividad *Trabajo final* del campus, antes del **domingo 13 de septiembre, 23:59**. La última clase (jueves 10/9) te sirve de checkpoint: llevá tu avance, que los evaluadores ya van a estar corrigiendo en vivo casos de prueba. Sin excepciones de formato: el agente que te corrige no improvisa.
+Subí el **link a tu repositorio público** en la actividad *Trabajo final* del campus, antes del **domingo 13 de septiembre, 23:59**. La última clase (jueves 10/9) te sirve de checkpoint: llevá tu avance, que esa noche se elige al evaluador que va a corregirte. Sin excepciones de formato: el agente que te corrige no improvisa.
