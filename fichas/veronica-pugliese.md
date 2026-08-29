@@ -1,6 +1,7 @@
-Ficha de presentación
-Copiá este contenido en un archivo nuevo con tu nombre, por ejemplo ana-garcia.md. Los pasos están en el README, sección «Cómo subir tu ficha».
+# Verónica Pugliese
 
-Nombre y apellido: Veronica Pugliese
-A qué me dedico: Trabajo en un banco, soy gerente zonal a cargo de 31 sucursales de la provincia de Cordoba, Tucuman y Santiago del Estero, con 320 empleados a cargo
-Qué proceso de mi trabajo le delegaría a un agente: Quiero que me envié todos los días a la mañana la información del día anterior de las ventas de las sucursales
+Soy gerente zonal en un banco, a cargo de 31 sucursales en Córdoba, Tucumán y
+Santiago del Estero, con 320 personas a cargo.
+
+Le delegaría a un agente el reporte diario: que todas las mañanas me envíe
+las ventas del día anterior de cada sucursal, ya armadas y listas para revisar.
