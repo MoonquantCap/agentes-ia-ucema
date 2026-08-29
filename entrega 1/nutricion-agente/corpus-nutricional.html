@@ -1,0 +1,374 @@
+<title>Corpus Nutricional</title>
+<style>
+:root{
+  --bg:#F5F6F2;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1EB;
+  --text:#1C2420;
+  --text-muted:#5C6B62;
+  --accent:#2E6B58;
+  --accent-strong:#204F41;
+  --accent-soft:#E3EEE8;
+  --border:#DCE3DD;
+  --warn-bg:#F5EBDB;
+  --warn-text:#7A5320;
+  --warn-border:#E3CDA0;
+  --shadow: 0 1px 2px rgba(28,36,32,0.06), 0 8px 24px rgba(28,36,32,0.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111813;
+    --surface:#182019;
+    --surface-2:#1E2822;
+    --text:#E7ECE8;
+    --text-muted:#96A79C;
+    --accent:#6FD1AE;
+    --accent-strong:#8FE0C1;
+    --accent-soft:#1D362C;
+    --border:#2A342D;
+    --warn-bg:#332A17;
+    --warn-text:#E8B573;
+    --warn-border:#4A3B1E;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111813;
+  --surface:#182019;
+  --surface-2:#1E2822;
+  --text:#E7ECE8;
+  --text-muted:#96A79C;
+  --accent:#6FD1AE;
+  --accent-strong:#8FE0C1;
+  --accent-soft:#1D362C;
+  --border:#2A342D;
+  --warn-bg:#332A17;
+  --warn-text:#E8B573;
+  --warn-border:#4A3B1E;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height:1.5;
+}
+.serif{ font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, ui-serif, serif; }
+.mono{ font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+.wrap{ max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+header.top{
+  padding: 44px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.eyebrow{
+  font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent-strong); font-weight: 600; margin: 0 0 10px;
+}
+h1{
+  font-size: clamp(28px, 4vw, 38px);
+  margin: 0 0 12px;
+  text-wrap: balance;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.dek{
+  color: var(--text-muted);
+  font-size: 16px;
+  max-width: 62ch;
+  margin: 0 0 22px;
+}
+.stats{
+  display:flex; gap: 28px; flex-wrap: wrap;
+}
+.stat .n{ font-size: 22px; font-weight: 700; font-family: Georgia, serif; }
+.stat .l{ font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.callout{
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  margin: 24px 0 0;
+  line-height: 1.55;
+}
+.callout strong{ color: inherit; }
+
+.controls{
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg);
+  padding: 16px 0 14px;
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+input[type="search"]{
+  flex: 1 1 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+input[type="search"]:focus{ outline: 2px solid var(--accent); outline-offset: 1px; }
+.chip{
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  cursor: pointer;
+  user-select: none;
+}
+.chip[aria-pressed="true"]{
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+.chip:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px; }
+.count{ font-size: 13px; color: var(--text-muted); margin-left: auto; white-space:nowrap; }
+
+section.topic{ margin-bottom: 40px; }
+.topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom: 4px; }
+.topic-head h2{ font-size: 20px; margin:0; font-weight: 600; }
+.topic-head .tcount{ font-size: 13px; color: var(--text-muted); }
+.topic-desc{ color: var(--text-muted); font-size: 14px; margin: 0 0 18px; }
+
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-top{ display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+.card-idx{ font-size: 12px; color: var(--text-muted); font-weight:600; }
+.badge{
+  font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+}
+.badge.dl{ background: var(--accent); color: var(--surface); }
+.badge.oa{ background: var(--accent-soft); color: var(--accent-strong); }
+.badge.noa{ background: var(--surface-2); color: var(--text-muted); }
+.card h3{
+  font-size: 17px; margin: 8px 0 6px; font-weight: 600; line-height:1.35;
+  text-wrap: balance;
+}
+.meta{ font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.meta .aff{ color: var(--text); }
+.summary{ font-size: 14.5px; margin: 0 0 12px; }
+.card-foot{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size: 12.5px; }
+.card-foot a{ color: var(--accent-strong); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+.card-foot a:hover{ border-bottom-color: var(--accent-strong); }
+.doi{ color: var(--text-muted); }
+
+.hidden{ display:none !important; }
+
+footer{
+  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+  font-size: 12.5px; color: var(--text-muted);
+}
+
+@media (max-width: 520px){
+  .stats{ gap: 18px; }
+  .controls{ flex-direction: column; align-items: stretch; }
+  .count{ margin-left:0; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">Investigación para agente nutricionista</p>
+    <h1 class="serif">Corpus de evidencia nutricional</h1>
+    <p class="dek">50 papers con referato, 2021&ndash;2026, de universidades y revistas de primer nivel, organizados en dos ejes: nutrición clínica general y microbiota/metabolismo.</p>
+    <div class="stats">
+      <div class="stat"><div class="n mono">50</div><div class="l">Papers verificados</div></div>
+      <div class="stat"><div class="n mono" id="oaCount">&mdash;</div><div class="l">Con acceso abierto</div></div>
+      <div class="stat"><div class="n mono" id="dlCount">&mdash;</div><div class="l">PDF descargado</div></div>
+      <div class="stat"><div class="n mono">2021&ndash;26</div><div class="l">Rango de publicación</div></div>
+    </div>
+    <div class="callout">
+      <strong>Nota de verificación y descarga.</strong> Cada entrada fue buscada y confirmada en PubMed / PubMed Central / sitios de las revistas — título, DOI, afiliación y estado de acceso abierto. De los papers con acceso abierto, el PDF pudo descargarse automáticamente solo en los que la editorial expone un enlace directo verificable (principalmente Nature.com y Springer/BMC); el resto (BMJ, Wiley, JAMA Network, AHA/JAHA, MDPI, Elsevier, ADA, Taylor &amp; Francis) bloquea la descarga por script aunque el contenido sea abierto, y requiere abrirlos manualmente desde el link de la revista. Un puñado de artículos lleva fecha de publicación 2025&ndash;2026 (consistente con la fecha actual); por tratarse de publicaciones muy recientes, conviene una verificación humana rápida del DOI antes de incorporarlos como fuente de verdad en el agente.
+    </div>
+  </header>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Buscar por título, autor, universidad o revista…" />
+    <button class="chip" data-topic="all" aria-pressed="true">Todos</button>
+    <button class="chip" data-topic="clinica" aria-pressed="false">Nutrición clínica</button>
+    <button class="chip" data-topic="microbiota" aria-pressed="false">Microbiota / metabolismo</button>
+    <button class="chip" id="oaOnly" aria-pressed="false">Solo acceso abierto</button>
+    <button class="chip" id="dlOnly" aria-pressed="false">Solo descargados</button>
+    <span class="count" id="resultCount"></span>
+  </div>
+
+  <section class="topic" data-topic-section="clinica">
+    <div class="topic-head">
+      <h2 class="serif">Nutrición clínica general</h2>
+      <span class="tcount">25 papers</span>
+    </div>
+    <p class="topic-desc">Guías dietéticas, macro/micronutrientes, prevención de enfermedades crónicas (diabetes, cardiovascular, obesidad), patrones dietéticos y longevidad.</p>
+    <div id="listClinica"></div>
+  </section>
+
+  <section class="topic" data-topic-section="microbiota">
+    <div class="topic-head">
+      <h2 class="serif">Microbiota y metabolismo</h2>
+      <span class="tcount">25 papers</span>
+    </div>
+    <p class="topic-desc">Microbioma intestinal y dieta, nutrigenómica, ácidos biliares y SCFA, eje intestino-cerebro, nutrición de precisión.</p>
+    <div id="listMicrobiota"></div>
+  </section>
+
+  <footer>
+    Compilado el 13&ndash;14 de agosto de 2026 para uso interno como base de conocimiento. Fuentes: PubMed / PubMed Central y sitios oficiales de cada revista. Dos duplicados detectados entre las dos búsquedas iniciales (Wastyk et al. 2021, Asnicar et al. 2021) fueron consolidados bajo el eje microbiota/metabolismo, donde encajan temáticamente; los dos papers agregados después (Tessier et al. 2025, Domínguez-López et al. 2025) completan el set a 50 y fueron elegidos porque su editorial permite descarga directa del PDF.
+  </footer>
+
+</div>
+
+<script>
+const clinica = [
+["Calorie Restriction with or without Time-Restricted Eating in Weight Loss","Liu D, Huang Y, Huang C, et al.","Southern Medical University, Guangzhou","New England Journal of Medicine","2022",false,false,"https://doi.org/10.1056/NEJMoa2114833","ECA en 139 adultos con obesidad: la alimentación restringida en el tiempo (8am–4pm) combinada con restricción calórica no produjo mayor pérdida de peso que la restricción calórica sola a 12 meses."],
+["Effect of Time-Restricted Eating on Weight Loss in Adults With Type 2 Diabetes: A Randomized Clinical Trial","Pavlou V, Cienfuegos S, Lin S, et al.","University of Illinois Chicago","JAMA Network Open","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10611992/","En 75 adultos con DT2, la alimentación en ventana de 8h redujo más el peso (-3.56%) que la restricción calórica diaria (-1.78%), con reducciones similares de HbA1c."],
+["Association of ultra-processed food consumption with all-cause and cause-specific mortality","Fang Z, Rossato SL, Hang D, et al.","Harvard T.H. Chan School of Public Health","BMJ","2024",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11077436/","En &gt;100.000 profesionales de salud (30+ años de seguimiento), el cuartil más alto de ultraprocesados tuvo 4% más mortalidad total, asociación más marcada en carnes procesadas y bebidas azucaradas."],
+["Systematic review and meta-analysis of protein intake to support muscle mass and function in healthy adults","Nunes EA, Colenso-Semple L, McKellar SR, et al. (Phillips SM, senior)","McMaster University","Journal of Cachexia, Sarcopenia and Muscle","2022",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC8978023/","Metaanálisis de 74 ECA: mayor ingesta proteica favorece masa magra y fuerza combinada con entrenamiento de resistencia; beneficio óptimo cerca de 1.6 g/kg/día."],
+["Effects of the DASH Diet on Change in Cardiac Biomarkers Over Time: Results From the DASH-Sodium Trial","Juraschek SP, Chang AR, Miller ER III, Appel LJ, et al.","Johns Hopkins University","Journal of the American Heart Association","2023",true,false,"https://doi.org/10.1161/JAHA.122.026684","La dieta DASH reduce biomarcadores cardíacos (troponina, NT-proBNP) de manera consistente con menor riesgo cardiovascular a largo plazo."],
+["Effect of Dietary Sodium on Blood Pressure: A Crossover Trial","Gupta DK, Lewis CE, Varady KA, et al. (Allen NB, senior)","Northwestern University Feinberg SoM","JAMA","2023",false,false,"https://doi.org/10.1001/jama.2023.23651","Ensayo cruzado en 213 adultos: reducir ~1 cucharadita de sal/día disminuye la PA sistólica ~6 mmHg en 70-75% de los participantes, comparable a un antihipertensivo de primera línea."],
+["Effect of long-term caloric restriction on DNA methylation measures of biological aging (CALERIE trial)","Waziry R, Ryan CP, Corcoran DL, et al. (Belsky DW, senior)","Columbia University Mailman School","Nature Aging","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10148951/","En el ECA CALERIE (25% restricción calórica x 2 años), la restricción enlenteció el ritmo de envejecimiento biológico (reloj DunedinPACE) en 2-3%."],
+["The EAT-Lancet Commission on healthy, sustainable, and just food systems (EAT-Lancet 2.0)","Willett W, Rockström J, Thilsted S, et al. (&gt;70 expertos)","Harvard T.H. Chan School of Public Health (co-liderazgo)","The Lancet","2025",false,false,"https://doi.org/10.1016/S0140-6736(25)01201-2","Actualización 2025 de la 'dieta de salud planetaria' (granos integrales, legumbres, frutos secos, proteína animal moderada); estima hasta 15 millones de muertes prematuras evitables al año."],
+["Vegetarian and vegan diets and the risk of cardiovascular disease, ischemic heart disease and stroke: systematic review and meta-analysis","Dybvik JS, Svendsen M, Aune D","University of Oslo / Karolinska Institutet","European Journal of Nutrition","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/pmid/36030329/","Metaanálisis de 13 cohortes (844.175 participantes): dietas vegetarianas → 15% menor riesgo cardiovascular y 21% menor riesgo de cardiopatía isquémica."],
+["Effect of omega-3 fatty acids on cardiovascular outcomes: systematic review and meta-analysis","Khan SU, Lone AN, Khan MS, et al. (Bhatt DL, senior)","West Virginia University / Harvard Medical School","eClinicalMedicine (The Lancet)","2021",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/pmid/34505026/","Metaanálisis de 38 ECA (149.051 participantes): omega-3 asociado a menor mortalidad CV e infarto no fatal; EPA en monoterapia mostró mayor beneficio que EPA+DHA."],
+["Diet and Diabetes Prevention: Is a Plant-Based Diet the Solution?","Schlesinger S","German Diabetes Center / Heinrich Heine University Düsseldorf","Diabetes Care","2023",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC9918442/","Revisión: patrones basados en plantas ricos en fibra y grasas vegetales reducen riesgo de diabetes tipo 2; versiones 'no saludables' no ofrecen el mismo beneficio."],
+["Life expectancy can increase by up to 10 years following sustained shifts towards healthier diets in the UK","Fadnes LT, Celis-Morales C, Økland JM, et al. (Mathers JC)","University of Bergen / University of Glasgow / Newcastle University","Nature Food","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10661734/","Modelo poblacional UK: cambio dietético sostenido podría añadir hasta 10.8 años de esperanza de vida a hombres de 40 y 10.4 a mujeres."],
+["Added Sugar, Sugar-Sweetened and Artificially Sweetened Beverages and Risk of Cardiovascular Disease (Women's Health Initiative + meta-análisis en red)","Yang B, Glenn AJ, Liu Q, et al. (Lo K, senior)","Brown University / University of Toronto","Nutrients","2022",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC9609206/","En 109.034 mujeres del WHI, azúcar añadida ≥15% de energía diaria se asoció a mayor riesgo de ECV total y cardiopatía coronaria."],
+["Global burden and strength of evidence for 88 risk factors in 204 countries, 1990–2021 (GBD 2021 Risk Factors Collaborators)","GBD 2021 Risk Factors Collaborators","Institute for Health Metrics and Evaluation, University of Washington","The Lancet","2024",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/pmid/38762324/","Análisis global: riesgos dietéticos (bajo consumo de granos integrales, alto sodio, bajas frutas/verduras) entre los principales factores de muerte y discapacidad mundial."],
+["Association of Sugar-Sweetened, Artificially Sweetened, and Unsweetened Coffee Consumption With All-Cause and Cause-Specific Mortality","Liu D, Li ZH, Shen D, et al.","Southern Medical University, Guangzhou","Annals of Internal Medicine","2022",false,false,"https://doi.org/10.7326/M21-2977","En 171.616 participantes del UK Biobank, consumo moderado de café (con o sin azúcar, no artificial) se asoció a menor mortalidad, relación en forma de U."],
+["Low-carbohydrate diets, low-fat diets, and mortality in middle-aged and older people: prospective cohort study","Zhao Y, Li Y, Wang W, et al. (Huang T, senior)","Peking University School of Public Health","Journal of Internal Medicine","2023",false,false,"https://doi.org/10.1111/joim.13639","En 371.159 participantes (23.5 años): dieta baja en grasa de buena calidad asociada a menor mortalidad total, CV y por cáncer; dietas bajas en carbohidratos 'no saludables' asociadas a mayor mortalidad."],
+["Nutritional priorities to support GLP-1 therapy for obesity (Advisory conjunta de 4 sociedades científicas)","Mozaffarian D, Aggarwal M, Alexander L, et al.","Tufts University Friedman School of Nutrition Science","American Journal of Clinical Nutrition","2025",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC12304835/","Consenso sobre prioridades nutricionales (proteína, fibra, micronutrientes, masa muscular) para pacientes en tratamiento con agonistas GLP-1."],
+["Effects of ketogenic diet on health outcomes: umbrella review of meta-analyses of RCT","Patikorn C, Saidoung P, Pham T, et al. (Varady KA, Chaiyakunapruk N)","University of Illinois Chicago / University of Utah","BMC Medicine","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10210275/","Revisión sombrilla de 17 metaanálisis (68 ECA): dieta cetogénica reduce triglicéridos, peso y HbA1c, pero eleva LDL y colesterol total."],
+["Worldwide trends in underweight and obesity from 1990 to 2022 (NCD-RisC)","NCD Risk Factor Collaboration (Ezzati M, corresponding)","Imperial College London","The Lancet","2024",false,false,"https://doi.org/10.1016/S0140-6736(23)02750-2","Análisis de 222 millones de personas en 200 países: la obesidad superó a la desnutrición como principal forma de malnutrición en la mayoría de países."],
+["Consumption of whole grains and refined grains and risk of cardiovascular disease events and all-cause mortality: dose-response meta-analysis","Hu H, Zhao Y, Feng Y, et al. (Hu D, senior)","Zhengzhou University","American Journal of Clinical Nutrition","2023",false,false,"https://doi.org/10.1016/j.ajcnut.2022.10.010","Metaanálisis de 24 estudios (1.6M participantes): cada 30g/día de granos integrales → 8% menor mortalidad CV y 6% menor mortalidad total; granos refinados, asociación opuesta."],
+["Comparison of seven popular structured dietary programmes and risk of mortality and major CV events: systematic review and network meta-analysis","Karam G, Agarwal A, Sadeghirad B, et al. (Johnston BC, senior)","University of Manitoba / Texas A&amp;M University","BMJ","2023",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10053756/","Metaanálisis en red de 40 ECA: dieta mediterránea y baja en grasa redujeron mortalidad total y eventos CV mayores vs. intervención mínima."],
+["Long-term effects and effect heterogeneity of lifestyle and metformin interventions on T2D incidence over 21 years (US Diabetes Prevention Program)","Diabetes Prevention Program Research Group","George Washington University / Johns Hopkins University (consorcio)","The Lancet Diabetes &amp; Endocrinology","2025",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC12414453/","A 21 años del DPP: la reducción de incidencia de DT2 persiste con intervención intensiva de estilo de vida (24%) y con metformina (17%)."],
+["Global estimation of dietary micronutrient inadequacies: a modelling analysis","Passarelli S, Free CM, Shepon A, Beal T, Batis C, Golden CD","Harvard T.H. Chan School of Public Health","The Lancet Global Health","2024",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11426101/","Primera estimación global de inadecuación de 15 micronutrientes: &gt;5.000M de personas sin suficiente yodo, vitamina E o calcio; &gt;4.000M con ingesta inadecuada de hierro, riboflavina, folato o vitamina C."],
+["Optimal dietary patterns for healthy aging","Tessier AJ, Wang F, Korat AA, et al. (Willett WC, Hu FB, senior)","Harvard T.H. Chan School of Public Health","Nature Medicine","2025",true,true,"https://doi.org/10.1038/s41591-025-03570-5","Cohortes Nurses' Health Study y Health Professionals Follow-Up Study (30 años, 105.015 participantes): mayor adherencia a 8 patrones dietéticos saludables se asoció a hasta 86% más probabilidad de envejecimiento saludable a los 70 años."],
+["Urinary polyphenol signature of the Mediterranean diet is associated with lower cardiovascular disease risk: the PREDIMED trial","Domínguez-López I, Galkina P, Fernández-Duval G, et al. (Salas-Salvadó J, Hu FB, Sun Q, senior)","Universitat Rovira i Virgili / Harvard T.H. Chan School of Public Health","BMC Medicine","2025",true,true,"https://doi.org/10.1186/s12916-025-04587-w","En el ensayo PREDIMED, una firma urinaria de 62 metabolitos polifenólicos de la dieta mediterránea se asoció prospectivamente con menor incidencia de enfermedad cardiovascular."]
+];
+
+const microbiota = [
+["Gut-microbiota-targeted diets modulate human immune status","Wastyk HC, Fragiadakis GK, Perelman D, et al. (Sonnenburg JL, senior)","Stanford School of Medicine","Cell","2021",false,false,"https://doi.org/10.1016/j.cell.2021.06.019","RCT de 17 semanas (36 adultos): alimentos fermentados aumentaron diversidad microbiana y redujeron 19 proteínas inflamatorias; la fibra alta no mostró ese efecto antiinflamatorio en ese plazo."],
+["Microbiome connections with host metabolism and habitual diet from 1.098 deeply phenotyped individuals (PREDICT1)","Asnicar F, Berry SE, Valdes AM, et al. (Spector TD, Segata N)","King's College London / University of Trento","Nature Medicine","2021",false,false,"https://doi.org/10.1038/s41591-020-01183-8","Metagenómica de 1.098 personas: identifica 15 microbios asociados a mejores marcadores cardiometabólicos posprandiales, ligados a dietas ricas en vegetales."],
+["Personalized microbiome-driven effects of non-nutritive sweeteners on human glucose tolerance","Suez J, Cohen Y, Valdés-Mas R, et al. (Elinav E, Segal E)","Weizmann Institute of Science","Cell","2022",false,false,"https://doi.org/10.1016/j.cell.2022.07.016","RCT en 120 adultos: sacarina y sucralosa alteraron microbiota/metaboloma y perjudicaron la respuesta glucémica de forma personalizada, confirmado por trasplante fecal a ratones."],
+["Effects of a personalized nutrition program on cardiometabolic health: a randomized controlled trial","Bermingham KM, Linenberg I, Polidori L, Asnicar F, et al. (Spector TD, Berry S)","King's College London (ZOE / PREDICT)","Nature Medicine","2024",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11271409/","RCT de 18 semanas (347 adultos): nutrición personalizada (glucosa/triglicéridos posprandiales, microbioma, historia clínica) mejoró triglicéridos, peso, HbA1c y microbioma vs. consejo estándar."],
+["Gut microbiome predicts personalized responses to dietary fiber in prediabetes: randomized, open-label trial","Song D, Feng G, Ma Y, et al. (Zhang C, Peng Y)","Shanghai Jiao Tong University","Nature Communications","2025",true,true,"https://www.nature.com/articles/s41467-025-66498-x.pdf","RCT de 6 meses (802 prediabéticos): el microbioma basal predijo la respuesta glucémica individual a la fibra dietética, apoyando la prevención de diabetes guiada por microbiota."],
+["Feeding gut microbes to nourish the brain: unravelling the diet–microbiota–gut–brain axis","Schneider E, O'Riordan KJ, Clarke G, Cryan JF","APC Microbiome Ireland / University College Cork","Nature Metabolism","2024",false,false,"https://doi.org/10.1038/s42255-024-01108-6","Revisión: la dieta modula la microbiota y, vía SCFA, ácidos biliares secundarios y triptófano, influye en cognición y estado de ánimo por el eje intestino-microbiota-cerebro."],
+["Diet–microbiome associations in 10.068 individuals from the Human Phenotype Project to guide personalized nutrition","Segev T, Barak D, Zahavi L, et al. (Segal E, senior)","Weizmann Institute of Science","Nature Medicine","2026",false,false,"https://doi.org/10.1038/s41591-026-04312-x","&gt;10.000 participantes con registro dietético por app y metagenómica shotgun: la dieta predijo 92% de las especies microbianas y 98% de las rutas metabólicas."],
+["Bile acids and the gut microbiota: metabolic interactions and impacts on disease","Collins SL, Stine JR, Bisanz JG, Okafor CE, Patterson AD","Pennsylvania State University","Nature Reviews Microbiology","2023",false,false,"https://doi.org/10.1038/s41579-022-00805-x","Revisión sobre transformación microbiana de ácidos biliares primarios en secundarios, su modulación por dieta/antibióticos y su impacto metabólico, infeccioso y neoplásico vía FXR/TGR5."],
+["A small intestinal bile acid modulates the gut microbiome to improve host metabolic phenotypes following bariatric surgery","Chen Y, Chaudhari SN, Harris DA, et al. (Sheu EG, senior)","Brigham and Women's Hospital / Harvard Medical School","Cell Host &amp; Microbe","2024",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11332993/","Tras gastrectomía en manga en ratones, el aumento de ácido taurodesoxicólico suprime la producción de ácido litocólico; su administración mejora el manejo de glucosa de forma dependiente del microbioma."],
+["Pasteurized Akkermansia muciniphila for weight loss maintenance in people with overweight and obesity: controlled randomized trial","Mount S, Canfora EE, Jocken JW, et al. (Blaak EE, de Vos WM)","Maastricht University / Wageningen University","Nature Medicine","2026",false,false,"https://doi.org/10.1038/s41591-026-04394-7","RCT en 90 adultos con sobrepeso/obesidad: tras pérdida de peso inicial, suplementar A. muciniphila pasteurizada 24 semanas redujo la recuperación de peso vs. placebo."],
+["Diurnal transcriptome landscape of a multi-tissue response to time-restricted feeding in mammals","Deota S, Lin T, Chaix A, et al. (Panda S, senior)","Salk Institute for Biological Studies","Cell Metabolism","2023",true,false,"https://pubmed.ncbi.nlm.nih.gov/36599299/","En ratones con dieta occidental, la alimentación con restricción horaria remodela la expresión génica rítmica en 22 tejidos/regiones cerebrales, alineando relojes circadianos periféricos."],
+["Rethinking healthy eating in light of the gut microbiome","Armet AM, Deehan EC, O'Sullivan AF, et al. (Walter J, senior)","University of Alberta / APC Microbiome Ireland, UCC","Cell Host &amp; Microbe","2022",false,false,"https://doi.org/10.1016/j.chom.2022.04.016","Revisión que replantea guías alimentarias integrando ciencia del microbioma: fibra fermentable y diversidad dietética determinan efectos metabólicos/inmunitarios mediados por microbiota."],
+["Host-diet-gut microbiome interactions influence human energy balance: a randomized clinical trial","Corbin KD, Carnero EA, Dirks B, et al. (Smith SR, senior)","AdventHealth Translational Research Institute / Arizona State University","Nature Communications","2023",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10232526/","Ensayo cruzado con 'dieta potenciadora del microbioma' (fibra, almidón resistente, partículas grandes): aumentó ~116 kcal/día perdidas en heces sin cambiar gasto energético ni apetito."],
+["Microbiota metabolism of intestinal amino acids impacts host nutrient homeostasis and physiology","Li TT, Chen X, Huo D, et al. (Guo CJ, senior)","Weill Cornell Medicine","Cell Host &amp; Microbe","2024",false,false,"https://pubmed.ncbi.nlm.nih.gov/38657606/","Cribado de 104 comensales identifica bacterias que metabolizan aminoácidos intestinales; genes de aminoácidos ramificados/triptófano afectan la homeostasis de glucosa vía serotonina periférica."],
+["The gut microbiome connects nutrition and human health","Sanz Y, Cryan JF, Deschasaux-Tanguy M, Elinav E, Lambrecht R, Veiga P","IATA-CSIC / Weizmann Institute / University College Cork","Nature Reviews Gastroenterology &amp; Hepatology","2025",false,false,"https://doi.org/10.1038/s41575-025-01077-5","Revisión sobre cómo los patrones dietéticos moldean el microbioma y median efectos en sistemas inmune, nervioso y cardiometabólico, con aplicación en nutrición de precisión."],
+["Gut physiology and environment explain variations in human gut microbiome composition and metabolism","Procházková N, Laursen MF, La Barbera G, et al. (Roager HM, senior)","University of Copenhagen / Technical University of Denmark","Nature Microbiology","2024",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11602727/","Estudio multi-ómico de 9 días (61 adultos) con cápsula inalámbrica de tránsito/pH: factores fisiológicos del huésped explican gran parte de la variación diaria del microbioma, más allá de la dieta reportada."],
+["Gut microbiome-mediated transformation of dietary phytonutrients is associated with health outcomes","Zhang L, Marfil-Sánchez A, Kuo TH, et al. (Panagiotou G, senior)","Leibniz Institute for Natural Product Research (HKI), Jena","Nature Microbiology","2026",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC12768975/","Análisis de &gt;3.000 microbiomas humanos globales: identifica biotransformación microbiana de 775 fitonutrientes vegetales y modelos de ML que vinculan este potencial con salud/enfermedad."],
+["Genetic and gut microbiome determinants of SCFA circulating and fecal levels, postprandial responses and links to inflammation","Nogal A, Asnicar F, Vijay A, et al. (Menni C, senior)","King's College London","Gut Microbes","2023",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC10395212/","En cohortes TwinsUK (n=2507) y ZOE PREDICT-1 (n=328): contribución genética/microbiana a 8 SCFA circulantes y fecales, vinculados a respuestas inflamatorias."],
+["The effects of the Green-Mediterranean diet on cardiometabolic health are linked to gut microbiome modifications: RCT (DIRECT-PLUS)","Rinott E, Yaskolka Meir A, Tsaban G, et al. (incl. Stampfer MJ)","Ben-Gurion University of the Negev / Harvard T.H. Chan","Genome Medicine","2022",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC8908597/","Ensayo DIRECT-PLUS (294 participantes): dieta Verde-Mediterránea (Mankai + té verde) produjo más cambios en microbioma que la mediterránea estándar, mediando mejoras cardiometabólicas."],
+["Gut microbial metabolism of bile acids modifies the effect of Mediterranean diet interventions on cardiometabolic risk: RCT","Gao P, Rinott E, Dong D, et al. (incl. Stampfer MJ)","Harvard T.H. Chan School of Public Health / Ben-Gurion University","Gut Microbes","2024",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC11567240/","En DIRECT-PLUS (284 participantes): el perfil de 44 ácidos biliares fecales modula el efecto de la dieta mediterránea sobre el riesgo cardiometabólico."],
+["Mobile genetic elements from the maternal microbiome shape infant gut microbial assembly and metabolism","Yassour M, et al. (Xavier RJ, senior)","Broad Institute of MIT and Harvard / Massachusetts General Hospital","Cell","2022",true,false,"https://pmc.ncbi.nlm.nih.gov/articles/PMC9869402/","Estudio longitudinal de 70 díadas madre-bebé: transferencia horizontal masiva de elementos genéticos móviles de madre a bebé (977 genes), moldeando el potencial metabólico del microbioma infantil."],
+["Gut micro-organisms associated with health, nutrition and dietary interventions (ZOE Microbiome Health Ranking)","Asnicar F, Manghi P, Fackelmann G, et al. (Spector TD, Segata N)","King's College London / University of Trento","Nature","2025",true,true,"https://pmc.ncbi.nlm.nih.gov/articles/PMC12893911/","&gt;34.000 participantes (EE.UU./Reino Unido, incl. cohorte ZOE PREDICT): identifica especies microbianas asociadas favorable/desfavorablemente con marcadores de salud."],
+["Combined effects of host genetics and diet on human gut microbiota and incident disease in a single population cohort","Qin Y, Havulinna AS, Liu Y, et al.","Finnish Institute for Health and Welfare (THL) / University of Helsinki","Nature Genetics","2022",false,false,"https://doi.org/10.1038/s41588-021-00991-z","En 5.959 finlandeses con metagenómica y dieta: 567 asociaciones SNP-taxón (incl. locus LCT–lactasa–Bifidobacterium) y evidencia de asociación causal microbiota-depresión vía aleatorización mendeliana."],
+["Identification of gut microbiome features associated with host metabolic health in a large population-based cohort","Keshet A, Segal E","Weizmann Institute of Science","Nature Communications","2024",true,true,"https://doi.org/10.1038/s41467-024-53832-y","En casi 9.000 individuos con monitorización continua de glucosa, DXA y ecografía hepática: asociaciones entre rutas génicas del microbioma y 38 medidas de salud metabólica, especialmente composición corporal."],
+["The gut microbiome and dietary fibres: implications in obesity, cardiometabolic diseases and cancer","Delzenne NM, Bindels LB, Neyrinck AM, Walter J","Université catholique de Louvain / University College Cork","Nature Reviews Microbiology","2024",false,false,"https://doi.org/10.1038/s41579-024-01108-z","Revisión: distintos tipos de fibra son fermentados diferencialmente por el microbioma, modulando SCFA, con implicaciones para obesidad, enfermedades cardiometabólicas y cáncer colorrectal."]
+];
+
+function card(row, idx, topic){
+  const [title, authors, aff, journal, year, oa, dl, url, summary] = row;
+  const badge = dl ? '<span class="badge dl">Descargado</span>' : (oa ? '<span class="badge oa">Acceso abierto</span>' : '<span class="badge noa">Sin acceso abierto</span>');
+  const linkLabel = oa ? "Ver PDF" : "Ver en la revista";
+  return `<article class="card" data-topic="${topic}" data-oa="${oa}" data-dl="${dl}" data-search="${(title+" "+authors+" "+aff+" "+journal).toLowerCase()}">
+    <div class="card-top">
+      <span class="card-idx mono">${String(idx).padStart(2,"0")}</span>
+      ${badge}
+    </div>
+    <h3 class="serif">${title}</h3>
+    <div class="meta">${authors} &middot; <span class="aff">${aff}</span><br/>${journal}, ${year}</div>
+    <p class="summary">${summary}</p>
+    <div class="card-foot">
+      <a href="${url}" target="_blank" rel="noopener">${linkLabel} ↗</a>
+      <span class="doi mono">${url.replace('https://','')}</span>
+    </div>
+  </article>`;
+}
+
+document.getElementById("listClinica").innerHTML = clinica.map((r,i)=>card(r,i+1,"clinica")).join("");
+document.getElementById("listMicrobiota").innerHTML = microbiota.map((r,i)=>card(r,i+1,"microbiota")).join("");
+
+const totalOA = [...clinica, ...microbiota].filter(r=>r[5]).length;
+const totalDL = [...clinica, ...microbiota].filter(r=>r[6]).length;
+document.getElementById("oaCount").textContent = totalOA;
+document.getElementById("dlCount").textContent = totalDL;
+
+const searchInput = document.getElementById("search");
+const chips = Array.from(document.querySelectorAll(".chip[data-topic]"));
+const oaChip = document.getElementById("oaOnly");
+const dlChip = document.getElementById("dlOnly");
+const resultCount = document.getElementById("resultCount");
+let activeTopic = "all";
+let oaOnly = false;
+let dlOnly = false;
+
+function applyFilters(){
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll(".card").forEach(c=>{
+    const matchesTopic = activeTopic === "all" || c.dataset.topic === activeTopic;
+    const matchesOA = !oaOnly || c.dataset.oa === "true";
+    const matchesDL = !dlOnly || c.dataset.dl === "true";
+    const matchesQuery = !q || c.dataset.search.includes(q);
+    const show = matchesTopic && matchesOA && matchesDL && matchesQuery;
+    c.classList.toggle("hidden", !show);
+    if(show) visible++;
+  });
+  document.querySelectorAll("section.topic").forEach(sec=>{
+    const t = sec.dataset.topicSection;
+    const anyVisible = Array.from(sec.querySelectorAll(".card")).some(c=>!c.classList.contains("hidden"));
+    sec.classList.toggle("hidden", !anyVisible);
+  });
+  resultCount.textContent = visible + (visible===1 ? " resultado" : " resultados");
+}
+
+searchInput.addEventListener("input", applyFilters);
+chips.forEach(chip=>{
+  chip.addEventListener("click", ()=>{
+    activeTopic = chip.dataset.topic;
+    chips.forEach(c=>c.setAttribute("aria-pressed", c===chip ? "true":"false"));
+    applyFilters();
+  });
+});
+oaChip.addEventListener("click", ()=>{
+  oaOnly = !oaOnly;
+  oaChip.setAttribute("aria-pressed", oaOnly ? "true":"false");
+  applyFilters();
+});
+dlChip.addEventListener("click", ()=>{
+  dlOnly = !dlOnly;
+  dlChip.setAttribute("aria-pressed", dlOnly ? "true":"false");
+  applyFilters();
+});
+
+applyFilters();
+</script>
